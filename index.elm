@@ -1,10 +1,11 @@
-import Html exposing (Html, button, div, text, h1, h3)
+import Html exposing (Html, button, div, text, h6)
 import Html.App as App
-import Html.Events exposing (onClick)
 import Html.Attributes exposing ( style )
 import AnimationFrame
 import Debug exposing (log)
 import Keyboard exposing (KeyCode)
+import Svg exposing (svg, circle, line, rect)
+import Svg.Attributes exposing (..)
 
 -- Main
 
@@ -45,7 +46,7 @@ update msg model =
       let
         intervalLength = intervalLengthMs / 100
         dy1 = model.dy - 1 * intervalLength
-          + if model.mainEngine then 10 * intervalLength else 0
+          + if model.mainEngine then 3 * intervalLength else 0
         y1 = model.y + dy1 * intervalLength
       in
         (
@@ -96,11 +97,23 @@ view model =
   in
     div [ divStyle ]
       [
-          h1 [] [ text (toString model.mainEngine)]
-          , h1 [] [ text (toString model.leftThruster)]
-          , h1 [] [ text (toString model.rightThruster)]
-          , h3 [] [ model.y |> round |> toString |> text ]
-          , h3 [] [ model.dy |> round |> toString |> text ]
+          rocketView model
+          , h6 [] [ model.y |> round |> toString |> text ]
+          , h6 [] [ model.dy |> round |> toString |> text ]
+          , h6 [] [ text (toString model.mainEngine)]
+          , h6 [] [ text (toString model.leftThruster)]
+          , h6 [] [ text (toString model.rightThruster)]
+      ]
+
+rocketView : Model -> Html Msg
+rocketView model =
+  let
+    rocketY = (0 - model.y) |> toString
+  in
+    svg [ viewBox "0 0 100 100", width "500px" ]
+      [
+        rect [ x "45", y rocketY, width "10", height "10" ] []
+        , line [ x1 "0", y1 "100", x2 "100", y2 "100", stroke "darkgreen" ] []
       ]
 
 -- Init
