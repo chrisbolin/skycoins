@@ -29,7 +29,7 @@ type alias Model =
     theta: Float,
     dx: Float,
     dy: Float,
-    dTheta: Float
+    dtheta: Float
   }
 
 -- Update
@@ -44,9 +44,13 @@ update msg model =
   case msg of
     Tick intervalLengthMs ->
       let
+        -- scaling
         intervalLength = intervalLengthMs / 100
-        dy1 = model.dy - 1 * intervalLength
-          + if model.mainEngine then 3 * intervalLength else 0
+        -- computed
+        dy1 =
+          (if model.y > 0 then model.dy - 1 * intervalLength else 0)
+          + (if model.mainEngine then 3 * intervalLength else 0)
+        -- derived
         y1 = model.y + dy1 * intervalLength
       in
         (
@@ -108,7 +112,7 @@ view model =
 rocketView : Model -> Html Msg
 rocketView model =
   let
-    rocketY = (0 - model.y) |> toString
+    rocketY = (90 - model.y) |> toString
   in
     svg [ viewBox "0 0 100 100", width "500px" ]
       [
@@ -121,6 +125,16 @@ rocketView model =
 init : (Model, Cmd Msg)
 init =
   (
-    Model False False False 0 0 0 0 0 0,
+    {
+      mainEngine = False,
+      rightThruster = False,
+      leftThruster = False,
+      x = 0,
+      y = 110,
+      theta = 0,
+      dx = 0,
+      dy = 0,
+      dtheta = 0
+    },
     Cmd.none
   )
