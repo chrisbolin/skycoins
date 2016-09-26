@@ -7,7 +7,7 @@ import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (..)
 
-rocket = {x = 11, y = 27}
+rocket = {x = 5, y = 2}
 
 -- Main
 
@@ -146,12 +146,11 @@ rocketView model =
     svg [ viewBox "0 0 200 100", width "100%" ]
       [
         line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
-        , use [
-          xlinkHref "graphics/rocket.svg#rocket"
-          , x rocketX
+        , Svg.text' [
+          x rocketX
           , y rocketY
           , transform (rocketTransform)
-          ] []
+          ] [text "🚁"]
       ]
 -- xlinkHref
 -- Init
