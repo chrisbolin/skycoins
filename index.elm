@@ -4,8 +4,10 @@ import Html.Attributes exposing ( style )
 import AnimationFrame
 import Debug exposing (log)
 import Keyboard exposing (KeyCode)
-import Svg exposing (svg, circle, line, rect)
+import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (..)
+
+rocket = {x = 11, y = 27}
 
 -- Main
 
@@ -112,14 +114,28 @@ view model =
 rocketView : Model -> Html Msg
 rocketView model =
   let
-    rocketY = (90 - model.y) |> toString
+    rocketY = (100 - rocket.y - model.y) |> toString
+    rotatePoint = {
+      x = 45 + rocket.x / 2 |> toString
+      , y = 100 - model.y - rocket.y / 2 |> toString
+      }
+    rocketTransform = "rotate(0 "
+      ++ rotatePoint.x
+      ++ " "
+      ++ rotatePoint.y
+      ++ ")"
   in
     svg [ viewBox "0 0 100 100", width "500px" ]
       [
-        rect [ x "45", y rocketY, width "10", height "10" ] []
-        , line [ x1 "0", y1 "100", x2 "100", y2 "100", stroke "darkgreen" ] []
+        line [ x1 "0", y1 "100", x2 "100", y2 "100", stroke "darkgreen" ] []
+        , use [
+          xlinkHref "graphics/rocket.svg#rocket"
+          , x "45"
+          , y rocketY
+          , transform (rocketTransform)
+          ] []
       ]
-
+-- xlinkHref
 -- Init
 
 init : (Model, Cmd Msg)
