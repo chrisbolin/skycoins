@@ -8,8 +8,7 @@
         <g id="rocket" fill="#3165DD">
             <polygon id="Triangle" points="11 26.1538462 0 26.1538462 5.5 16"></polygon>
             <polygon id="Triangle" points="9.5 17 1.5 17 5.5 4"></polygon>
-            <rect id="Rectangle" x="3" y="8" width="5" height="16.6100006"></rect>
-            <ellipse id="Oval" cx="5.5" cy="9" rx="2.5" ry="9"></ellipse>
+            <ellipse id="Oval" cx="5.5" cy="12" rx="2.5" ry="12"></ellipse>
         </g>
     </g>
 </svg>

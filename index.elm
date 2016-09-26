@@ -50,15 +50,30 @@ update msg model =
         intervalLength = intervalLengthMs / 100
         -- computed
         dy1 =
-          (if model.y > 0 then model.dy - 1 * intervalLength else 0)
-          + (if model.mainEngine then 3 * intervalLength else 0)
+          (if model.y > 0 then model.dy - 1 * intervalLength else 0) -- gravity (and floor)
+          + (if model.mainEngine then 3 * intervalLength * cos (degrees model.theta) else 0) -- engine
+        dx1 =
+          model.dx
+          + (if model.mainEngine then 3 * intervalLength * sin (degrees model.theta) else 0) -- engine
+        dtheta1 =
+          ( if model.leftThruster == model.rightThruster then model.dtheta
+            else if model.leftThruster then model.dtheta - 1 * intervalLength
+            else if model.rightThruster then model.dtheta + 1 * intervalLength
+            else model.dtheta
+            )
         -- derived
+        x1 = model.x + dx1 * intervalLength
         y1 = model.y + dy1 * intervalLength
+        theta1 = model.theta + dtheta1 * intervalLength
       in
         (
           {model
             | dy = dy1
             , y = y1
+            , x = x1
+            , dx = dx1
+            , dtheta = dtheta1
+            , theta = theta1
           }
           , Cmd.none
         )
@@ -114,23 +129,26 @@ view model =
 rocketView : Model -> Html Msg
 rocketView model =
   let
-    rocketY = (100 - rocket.y - model.y) |> toString
+    rocketY = toString (100 - rocket.y - model.y)
+    rocketX = toString model.x
     rotatePoint = {
-      x = 45 + rocket.x / 2 |> toString
+      x = model.x + rocket.x / 2 |> toString
       , y = 100 - model.y - rocket.y / 2 |> toString
       }
-    rocketTransform = "rotate(0 "
+    rocketTransform = "rotate("
+      ++ toString model.theta
+      ++ " "
       ++ rotatePoint.x
       ++ " "
       ++ rotatePoint.y
       ++ ")"
   in
-    svg [ viewBox "0 0 100 100", width "500px" ]
+    svg [ viewBox "0 0 200 100", width "100%" ]
       [
-        line [ x1 "0", y1 "100", x2 "100", y2 "100", stroke "darkgreen" ] []
+        line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
         , use [
           xlinkHref "graphics/rocket.svg#rocket"
-          , x "45"
+          , x rocketX
           , y rocketY
           , transform (rocketTransform)
           ] []
@@ -145,7 +163,7 @@ init =
       mainEngine = False,
       rightThruster = False,
       leftThruster = False,
-      x = 0,
+      x = 45,
       y = 110,
       theta = 0,
       dx = 0,
