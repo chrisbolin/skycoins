@@ -7,7 +7,16 @@ import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (..)
 
-rocket = {x = 11, y = 27}
+vehicle = {x = 25, y = 13}
+
+floatModulo number modulo =
+  let
+    rounded = round number
+    difference = toFloat rounded - number
+  in
+    if number > modulo then number - modulo
+    else if number < 0 then number + modulo
+    else number
 
 -- Main
 
@@ -62,7 +71,7 @@ update msg model =
             else model.dtheta
             )
         -- derived
-        x1 = model.x + dx1 * intervalLength
+        x1 = floatModulo (model.x + dx1 * intervalLength) 200
         y1 = model.y + dy1 * intervalLength
         theta1 = model.theta + dtheta1 * intervalLength
       in
@@ -129,11 +138,11 @@ view model =
 rocketView : Model -> Html Msg
 rocketView model =
   let
-    rocketY = toString (100 - rocket.y - model.y)
+    rocketY = toString (100 - vehicle.y - model.y)
     rocketX = toString model.x
     rotatePoint = {
-      x = model.x + rocket.x / 2 |> toString
-      , y = 100 - model.y - rocket.y / 2 |> toString
+      x = model.x + vehicle.x / 2 |> toString
+      , y = 100 - model.y - vehicle.y / 2 |> toString
       }
     rocketTransform = "rotate("
       ++ toString model.theta
@@ -147,7 +156,7 @@ rocketView model =
       [
         line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
         , use [
-          xlinkHref "graphics/rocket.svg#rocket"
+          xlinkHref "graphics/helicopter.svg#helicopter"
           , x rocketX
           , y rocketY
           , transform (rocketTransform)
