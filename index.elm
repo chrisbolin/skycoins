@@ -1,22 +1,23 @@
 import Html exposing (Html, button, div, text, h6)
 import Html.App as App
-import Html.Attributes exposing ( style )
+import Html.Attributes exposing (style)
 import AnimationFrame
 import Debug exposing (log)
 import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
-import Svg.Attributes exposing (..)
+import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
 
-vehicle = {x = 25, y = 13}
+import Utils exposing (floatModulo)
 
-floatModulo number modulo =
-  let
-    rounded = round number
-    difference = toFloat rounded - number
-  in
-    if number > modulo then number - modulo
-    else if number < 0 then number + modulo
-    else number
+config =
+  { vehicle =
+    { x = 25
+    , y = 13
+    }
+  , gravity = 2
+  , engine = 2.9 -- up
+  , thrusters = 2 -- left/right
+  }
 
 -- Main
 
@@ -57,23 +58,26 @@ update msg model =
       let
         -- scaling
         intervalLength = intervalLengthMs / 100
+        thetaRad = degrees model.theta
         -- computed
         dy1 =
-          (if model.y > 0 then model.dy - 1 * intervalLength else 0) -- gravity (and floor)
-          + (if model.mainEngine then 3 * intervalLength * cos (degrees model.theta) else 0) -- engine
-        dx1 =
-          model.dx
-          + (if model.mainEngine then 3 * intervalLength * sin (degrees model.theta) else 0) -- engine
-        dtheta1 =
+          (if model.y > 0 then model.dy - config.gravity * intervalLength else 0) -- gravity / floor
+          + (if model.mainEngine then config.engine * intervalLength * cos thetaRad else 0)
+        y1 = max 0 (model.y + dy1 * intervalLength)
+        dx1 = if y1 > 0 then
+          ( model.dx
+            + (if model.mainEngine then config.engine * intervalLength * sin thetaRad else 0)
+            )
+          else 0
+        x1 = (floatModulo (model.x + dx1 * intervalLength + config.vehicle.x/2) 200) - config.vehicle.x/2
+        dtheta1 = if y1 > 0 then
           ( if model.leftThruster == model.rightThruster then model.dtheta
-            else if model.leftThruster then model.dtheta - 1 * intervalLength
-            else if model.rightThruster then model.dtheta + 1 * intervalLength
+            else if model.leftThruster then model.dtheta - config.thrusters * intervalLength
+            else if model.rightThruster then model.dtheta + config.thrusters * intervalLength
             else model.dtheta
             )
-        -- derived
-        x1 = floatModulo (model.x + dx1 * intervalLength) 200
-        y1 = model.y + dy1 * intervalLength
-        theta1 = model.theta + dtheta1 * intervalLength
+          else 0
+        theta1 = if y1 > 0 then model.theta + dtheta1 * intervalLength else 0
       in
         (
           {model
@@ -104,6 +108,8 @@ update msg model =
           ({model | mainEngine = False}, Cmd.none)
         39 ->
           ({model | rightThruster = False}, Cmd.none)
+        82 ->
+          init
         _ ->
           (model, Cmd.none)
 
@@ -117,32 +123,23 @@ subscriptions model =
       , AnimationFrame.diffs Tick
     ]
 
-
 -- View
 
 view : Model -> Html Msg
 view model =
   let
-    divStyle = Html.Attributes.style [("padding", "10px")]
+    divStyle = Html.Attributes.style [("padding", "0px")]
   in
-    div [ divStyle ]
-      [
-          rocketView model
-          , h6 [] [ model.y |> round |> toString |> text ]
-          , h6 [] [ model.dy |> round |> toString |> text ]
-          , h6 [] [ text (toString model.mainEngine)]
-          , h6 [] [ text (toString model.leftThruster)]
-          , h6 [] [ text (toString model.rightThruster)]
-      ]
+    div [ divStyle ] [ rocketView model ]
 
 rocketView : Model -> Html Msg
 rocketView model =
   let
-    rocketY = toString (100 - vehicle.y - model.y)
+    rocketY = toString (100 - config.vehicle.y - model.y)
     rocketX = toString model.x
     rotatePoint = {
-      x = model.x + vehicle.x / 2 |> toString
-      , y = 100 - model.y - vehicle.y / 2 |> toString
+      x = model.x + config.vehicle.x / 2 |> toString
+      , y = 100 - model.y - config.vehicle.y / 2 |> toString
       }
     rocketTransform = "rotate("
       ++ toString model.theta
@@ -172,8 +169,8 @@ init =
       mainEngine = False,
       rightThruster = False,
       leftThruster = False,
-      x = 45,
-      y = 110,
+      x = 100,
+      y = config.vehicle.y,
       theta = 0,
       dx = 0,
       dy = 0,
