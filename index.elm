@@ -7,17 +7,8 @@ import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
 
-import Utils exposing (floatModulo)
-
-config =
-  { vehicle =
-    { x = 25
-    , y = 13
-    }
-  , gravity = 2
-  , engine = 2.9 -- up
-  , thrusters = 2 -- left/right
-  }
+import Model
+import Config exposing (config)
 
 -- Main
 
@@ -55,41 +46,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Tick intervalLengthMs ->
-      let
-        -- scaling
-        intervalLength = intervalLengthMs / 100
-        thetaRad = degrees model.theta
-        -- computed
-        dy1 =
-          (if model.y > 0 then model.dy - config.gravity * intervalLength else 0) -- gravity / floor
-          + (if model.mainEngine then config.engine * intervalLength * cos thetaRad else 0)
-        y1 = max 0 (model.y + dy1 * intervalLength)
-        dx1 = if y1 > 0 then
-          ( model.dx
-            + (if model.mainEngine then config.engine * intervalLength * sin thetaRad else 0)
-            )
-          else 0
-        x1 = (floatModulo (model.x + dx1 * intervalLength + config.vehicle.x/2) 200) - config.vehicle.x/2
-        dtheta1 = if y1 > 0 then
-          ( if model.leftThruster == model.rightThruster then model.dtheta
-            else if model.leftThruster then model.dtheta - config.thrusters * intervalLength
-            else if model.rightThruster then model.dtheta + config.thrusters * intervalLength
-            else model.dtheta
-            )
-          else 0
-        theta1 = if y1 > 0 then model.theta + dtheta1 * intervalLength else 0
-      in
-        (
-          {model
-            | dy = dy1
-            , y = y1
-            , x = x1
-            , dx = dx1
-            , dtheta = dtheta1
-            , theta = theta1
-          }
-          , Cmd.none
-        )
+      (Model.tick model intervalLengthMs, Cmd.none)
     KeyDown code ->
       case code of
         37 ->
