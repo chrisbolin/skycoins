@@ -25,7 +25,7 @@ tick model intervalLengthMs =
       (if state == Flying then model.dy - config.gravity * intervalLength else 0) -- gravity / floor
       + dyEngine
     y1 = max 0 (model.y + dy1 * intervalLength) -- don't go "under" the ground
-    dx1 = if state == Flying then (model.dx + dxEngine) else 0
+    dx1 = if state == Flying then (model.dx + dxEngine) else model.dx / config.correction.dx
     x1 = (floatModulo (model.x + dx1 * intervalLength) 200)
     dtheta1 = if state == Flying then
       ( if model.leftThruster == model.rightThruster then model.dtheta
@@ -34,7 +34,9 @@ tick model intervalLengthMs =
         else model.dtheta
         )
       else 0
-    theta1 = if state == Flying then floatModulo (model.theta + dtheta1 * intervalLength) 360 else 0
+    theta1 = if state == Flying then floatModulo (model.theta + dtheta1 * intervalLength) 360
+      else if model.theta < 180 then (model.theta + 0) / config.correction.theta
+      else (model.theta + 360) / config.correction.theta
   in
     case state of
       Crashed ->

@@ -89,7 +89,7 @@ view model =
   in
     div [ divStyle ]
       [ gameView model
-      , text (model.dx |> abs |> toString)
+      , text (model.dx |> abs |> round |> toString)
         ]
 
 gameView : Model -> Html Msg

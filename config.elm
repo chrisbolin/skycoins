@@ -8,4 +8,8 @@ config =
   , gravity = 1.5
   , engine = 2.2 -- up
   , thrusters = 2 -- left/right
+  , correction =
+    { theta = 2
+    , dx = 1.1
+    }
   }
