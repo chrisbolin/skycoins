@@ -24,7 +24,7 @@ tick model intervalLengthMs =
         + (if model.mainEngine then config.engine * intervalLength * sin thetaRad else 0)
         )
       else 0
-    x1 = (floatModulo (model.x + dx1 * intervalLength + config.vehicle.x/2) 200) - config.vehicle.x/2
+    x1 = (floatModulo (model.x + dx1 * intervalLength) 200)
     dtheta1 = if state == Flying then
       ( if model.leftThruster == model.rightThruster then model.dtheta
         else if model.leftThruster then model.dtheta - config.thrusters * intervalLength

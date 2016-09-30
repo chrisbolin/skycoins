@@ -87,36 +87,32 @@ view model =
   let
     divStyle = Html.Attributes.style [("padding", "0px")]
   in
-    div [ divStyle ] [ rocketView model ]
+    div [ divStyle ] [ gameView model ]
 
-rocketView : Model -> Html Msg
-rocketView model =
+gameView : Model -> Html Msg
+gameView model =
+  svg [ viewBox "0 0 200 100", width "100%" ]
+    [
+      line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
+      , vehicleView model
+      , vehicleView {model | x = model.x - 200}
+    ]
+
+vehicleView model =
   let
-    rocketY = toString (100 - config.vehicle.y - model.y)
-    rocketX = toString model.x
-    rotatePoint = {
-      x = model.x + config.vehicle.x / 2 |> toString
-      , y = 100 - model.y - config.vehicle.y / 2 |> toString
-      }
-    rocketTransform = "rotate("
-      ++ toString model.theta
-      ++ " "
-      ++ rotatePoint.x
-      ++ " "
-      ++ rotatePoint.y
-      ++ ")"
+    vehicleY = (100 - config.vehicle.y - model.y)
+    vehicleX = model.x
+    rotateX = model.x + config.vehicle.x / 2 |> toString
+    rotateY = 100 - model.y - config.vehicle.y / 2 |> toString
+    vehicleTransform = "rotate(" ++ toString model.theta ++ " " ++ rotateX ++ " " ++ rotateY ++ ")"
   in
-    svg [ viewBox "0 0 200 100", width "100%" ]
-      [
-        line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
-        , use [
-          xlinkHref "graphics/helicopter.svg#helicopter"
-          , x rocketX
-          , y rocketY
-          , transform (rocketTransform)
-          ] []
-      ]
--- xlinkHref
+    use [
+      xlinkHref "graphics/helicopter.svg#helicopter"
+      , x (toString vehicleX)
+      , y (toString vehicleY)
+      , transform (vehicleTransform)
+      ] []
+
 -- Init
 
 init : (Model, Cmd Msg)
