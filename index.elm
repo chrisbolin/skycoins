@@ -108,9 +108,13 @@ vehicleView model =
     rotateX = model.x + config.vehicle.x / 2 |> toString
     rotateY = 100 - model.y - config.vehicle.y / 2 |> toString
     vehicleTransform = "rotate(" ++ toString model.theta ++ " " ++ rotateX ++ " " ++ rotateY ++ ")"
+    svgId = if model.mainEngine && model.rightThruster || model.leftThruster then "all"
+      else if model.mainEngine then "main"
+      else if model.rightThruster || model.leftThruster then "turn"
+      else "none"
   in
     use [
-      xlinkHref "graphics/helicopter.svg#helicopter"
+      xlinkHref ("graphics/helicopter.svg#" ++ svgId)
       , x (toString vehicleX)
       , y (toString vehicleY)
       , transform (vehicleTransform)
