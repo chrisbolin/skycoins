@@ -87,7 +87,10 @@ view model =
   let
     divStyle = Html.Attributes.style [("padding", "0px")]
   in
-    div [ divStyle ] [ gameView model ]
+    div [ divStyle ]
+      [ gameView model
+      , text (model.dx |> abs |> toString)
+        ]
 
 gameView : Model -> Html Msg
 gameView model =
