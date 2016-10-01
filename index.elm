@@ -7,7 +7,7 @@ import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
 
-import Model
+import Model exposing (Model)
 import Config exposing (config)
 
 -- Main
@@ -19,21 +19,6 @@ main = App.program
    update = update,
    init = init
  }
-
--- Model
-
-type alias Model =
-  {
-    mainEngine: Bool,
-    rightThruster: Bool,
-    leftThruster: Bool,
-    x: Float,
-    y: Float,
-    theta: Float,
-    dx: Float,
-    dy: Float,
-    dtheta: Float
-  }
 
 -- Update
 

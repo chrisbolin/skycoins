@@ -1,7 +1,20 @@
-module Model exposing (tick)
+module Model exposing (Model, tick)
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
+
+type alias Model =
+  {
+    mainEngine: Bool,
+    rightThruster: Bool,
+    leftThruster: Bool,
+    x: Float,
+    y: Float,
+    theta: Float,
+    dx: Float,
+    dy: Float,
+    dtheta: Float
+  }
 
 type State = Flying | Crashed | Landed
 
