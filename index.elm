@@ -97,7 +97,7 @@ vehicleView model =
     vehicleTransform = "rotate(" ++ toString model.theta ++ " " ++ rotateX ++ " " ++ rotateY ++ ")"
     svgId =
       if model.paused then "none"
-      else if model.mainEngine && model.rightThruster || model.leftThruster then "all"
+      else if model.mainEngine && (model.rightThruster || model.leftThruster) then "all"
       else if model.mainEngine then "main"
       else if model.rightThruster || model.leftThruster then "turn"
       else "none"
