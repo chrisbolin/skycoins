@@ -34,12 +34,14 @@ update msg model =
       (Model.tick model intervalLengthMs, Cmd.none)
     KeyDown code ->
       case code of
-        37 ->
-          ({model | leftThruster = True}, Cmd.none)
-        38 ->
-          ({model | mainEngine = True}, Cmd.none)
-        39 ->
-          ({model | rightThruster = True}, Cmd.none)
+        32 -> -- Spacebar
+          ({model | paused = not model.paused}, Cmd.none)
+        37 -> -- Left
+          ({model | leftThruster = True, paused = False}, Cmd.none)
+        38 -> -- Up
+          ({model | mainEngine = True, paused = False}, Cmd.none)
+        39 -> -- Right
+          ({model | rightThruster = True, paused = False}, Cmd.none)
         _ ->
           (model, Cmd.none)
     KeyUp code ->
@@ -93,7 +95,9 @@ vehicleView model =
     rotateX = model.x + config.vehicle.x / 2 |> toString
     rotateY = 100 - model.y - config.vehicle.y / 2 |> toString
     vehicleTransform = "rotate(" ++ toString model.theta ++ " " ++ rotateX ++ " " ++ rotateY ++ ")"
-    svgId = if model.mainEngine && model.rightThruster || model.leftThruster then "all"
+    svgId =
+      if model.paused then "none"
+      else if model.mainEngine && model.rightThruster || model.leftThruster then "all"
       else if model.mainEngine then "main"
       else if model.rightThruster || model.leftThruster then "turn"
       else "none"
@@ -111,6 +115,7 @@ init : (Model, Cmd Msg)
 init =
   (
     {
+      paused = True,
       mainEngine = False,
       rightThruster = False,
       leftThruster = False,

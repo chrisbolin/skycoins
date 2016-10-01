@@ -5,6 +5,7 @@ import Config exposing (config)
 
 type alias Model =
   {
+    paused: Bool,
     mainEngine: Bool,
     rightThruster: Bool,
     leftThruster: Bool,
@@ -16,10 +17,11 @@ type alias Model =
     dtheta: Float
   }
 
-type State = Flying | Crashed | Landed
+type State = Flying | Crashed | Landed | Paused
 
 determineState model =
-  if model.y > 0 then Flying
+  if model.paused then Paused
+  else if model.y > 0 then Flying
   else if abs model.dy > 10 then Crashed
   else if abs model.dx > 15 then Crashed
   else if (model.theta > 30) && (model.theta < 330) then Crashed
@@ -52,10 +54,13 @@ tick model intervalLengthMs =
       else (model.theta + 360) / config.correction.theta
   in
     case state of
+      Paused ->
+        model
       Crashed ->
         {model
-          | dy = 0
-          , y = 100
+          | paused = True
+          , dy = 0
+          , y = 10
           , x = 50
           , dx = 0
           , dtheta = 0
