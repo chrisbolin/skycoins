@@ -35,7 +35,7 @@ determineState : Model -> State
 determineState model =
     if model.paused then
         Paused
-    else if model.y > 0 then
+    else if model.y > (config.vehicle.y / 2) then
         Flying
     else if abs model.dy > 10 then
         Crashed
@@ -49,9 +49,9 @@ determineState model =
 
 coinCollected : Model -> Bool
 coinCollected model =
-    if (model.x - model.coin.x |> abs) > 10 then
+    if (model.x - model.coin.x |> abs) > config.vehicle.x / 2 then
         False
-    else if (model.y - model.coin.y |> abs) > 10 then
+    else if (model.y - model.coin.y |> abs) > config.vehicle.y / 2 then
         False
     else
         True
@@ -67,8 +67,8 @@ coin model =
     if coinCollected model then
         { model
             | coin =
-                { x = floatModulo (model.coin.x + 47) 180
-                , y = floatModulo (model.coin.y + 47) 70
+                { x = floatModulo (model.coin.x + 47) 200
+                , y = floatModulo (model.coin.y + 27) 100
                 }
             , score = model.score + 100
         }
@@ -111,7 +111,7 @@ vehicle model =
                 + dyEngine
 
         y1 =
-            max 0 (model.y + dy1 * intervalLength)
+            max (config.vehicle.y / 2) (model.y + dy1 * intervalLength)
 
         -- don't go "under" the ground
         dx1 =

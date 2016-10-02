@@ -23,7 +23,7 @@ type alias Config =
 config : Config
 config =
     { vehicle =
-        { x = 25
+        { x = 28
         , y = 15
         }
     , gravity = 1.5

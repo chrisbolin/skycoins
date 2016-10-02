@@ -110,31 +110,36 @@ gameView : Model -> Html Msg
 gameView model =
     svg [ viewBox "0 0 200 100", width "100%" ]
         [ line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
-        , use
-            [ xlinkHref ("graphics/coin.svg#coin")
-            , x (model.coin.x + config.coin.x + config.vehicle.x / 2 |> toString)
-            , y (100 - config.coin.y - model.coin.y |> toString)
-            ]
-            []
+        , coinView model
         , vehicleView model
         , vehicleView { model | x = model.x - 200 }
         ]
 
 
+coinView : Model -> Svg.Svg a
+coinView model =
+    use
+        [ xlinkHref ("graphics/coin.svg#coin")
+        , x (model.coin.x - config.coin.x / 2 |> toString)
+        , y (100 - model.coin.y - config.coin.y / 2 |> toString)
+        ]
+        []
+
+
 vehicleView : Model -> Svg.Svg a
 vehicleView model =
     let
-        vehicleY =
-            (100 - config.vehicle.y - model.y)
-
-        rotateX =
-            model.x + config.vehicle.x / 2 |> toString
-
         rotateY =
+            100 - model.y |> toString
+
+        leftX =
+            model.x - config.vehicle.x / 2 |> toString
+
+        topY =
             100 - model.y - config.vehicle.y / 2 |> toString
 
         vehicleTransform =
-            "rotate(" ++ toString model.theta ++ " " ++ rotateX ++ " " ++ rotateY ++ ")"
+            "rotate(" ++ toString model.theta ++ " " ++ toString model.x ++ " " ++ rotateY ++ ")"
 
         svgId =
             if model.paused then
@@ -150,8 +155,8 @@ vehicleView model =
     in
         use
             [ xlinkHref ("graphics/helicopter.svg#" ++ svgId)
-            , x (toString model.x)
-            , y (toString vehicleY)
+            , x leftX
+            , y topY
             , transform (vehicleTransform)
             ]
             []
@@ -169,7 +174,7 @@ init =
       , rightThruster = False
       , leftThruster = False
       , x = 100
-      , y = 0
+      , y = 20
       , theta = 0
       , dx = 0
       , dy = 0
