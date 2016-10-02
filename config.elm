@@ -7,12 +7,8 @@ type alias Config =
         , y : Float
         }
     , gravity : Float
-    , engine :
-        Float
-        -- up
-    , thrusters :
-        Float
-        -- left/right
+    , engine : Float
+    , thrusters : Float
     , correction :
         { theta : Float
         , dx : Float
@@ -31,12 +27,8 @@ config =
         , y = 15
         }
     , gravity = 1.5
-    , engine =
-        2.2
-        -- up
-    , thrusters =
-        2
-        -- left/right
+    , engine = 2.2
+    , thrusters = 2
     , correction =
         { theta = 2
         , dx = 1.1

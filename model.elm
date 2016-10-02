@@ -6,6 +6,7 @@ import Config exposing (config)
 
 type alias Model =
     { paused : Bool
+    , score : Int
     , mainEngine : Bool
     , rightThruster : Bool
     , leftThruster : Bool
@@ -46,6 +47,16 @@ determineState model =
         Landed
 
 
+coinCollected : Model -> Bool
+coinCollected model =
+    if (model.x - model.coin.x |> abs) > 10 then
+        False
+    else if (model.y - model.coin.y |> abs) > 10 then
+        False
+    else
+        True
+
+
 tick : Model -> Model
 tick model =
     model |> vehicle |> coin
@@ -53,7 +64,16 @@ tick model =
 
 coin : Model -> Model
 coin model =
-    model
+    if coinCollected model then
+        { model
+            | coin =
+                { x = floatModulo (model.coin.x + 47) 180
+                , y = floatModulo (model.coin.y + 47) 70
+                }
+            , score = model.score + 100
+        }
+    else
+        model
 
 
 vehicle : Model -> Model
@@ -88,9 +108,7 @@ vehicle model =
              else
                 0
             )
-                -- gravity / floor
-                +
-                    dyEngine
+                + dyEngine
 
         y1 =
             max 0 (model.y + dy1 * intervalLength)
@@ -140,6 +158,7 @@ vehicle model =
                     , dx = 0
                     , dtheta = 0
                     , theta = 0
+                    , score = 0
                 }
 
             _ ->

@@ -103,7 +103,7 @@ view model =
             Html.Attributes.style [ ( "padding", "0px" ) ]
     in
         div [ divStyle ]
-            [ gameView model ]
+            [ gameView model, text (toString model.score) ]
 
 
 gameView : Model -> Html Msg
@@ -112,7 +112,7 @@ gameView model =
         [ line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
         , use
             [ xlinkHref ("graphics/coin.svg#coin")
-            , x (toString model.coin.x)
+            , x (model.coin.x + config.coin.x + config.vehicle.x / 2 |> toString)
             , y (100 - config.coin.y - model.coin.y |> toString)
             ]
             []
@@ -164,6 +164,7 @@ vehicleView model =
 init : ( Model, Cmd Msg )
 init =
     ( { paused = True
+      , score = 0
       , mainEngine = False
       , rightThruster = False
       , leftThruster = False
@@ -175,8 +176,8 @@ init =
       , dtheta = 0
       , intervalLengthMs = 0
       , coin =
-            { x = 100 + 15
-            , y = 0 + 2
+            { x = 150
+            , y = 50
             }
       }
     , Cmd.none
