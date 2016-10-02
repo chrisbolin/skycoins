@@ -9,6 +9,7 @@ import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
 import Model exposing (Model)
 import Config exposing (config)
+import Msg exposing (Msg(Tick, KeyUp, KeyDown))
 
 
 -- Main
@@ -26,12 +27,6 @@ main =
 
 
 -- Update
-
-
-type Msg
-    = KeyDown KeyCode
-    | KeyUp KeyCode
-    | Tick Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
