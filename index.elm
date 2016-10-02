@@ -30,7 +30,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Tick intervalLengthMs ->
-      (Model.tick model intervalLengthMs, Cmd.none)
+      (Model.tick {model | intervalLengthMs = intervalLengthMs}, Cmd.none)
     KeyDown code ->
       case code of
         32 -> -- Spacebar
@@ -126,7 +126,8 @@ init =
       theta = 0,
       dx = 0,
       dy = 0,
-      dtheta = 0
+      dtheta = 0,
+      intervalLengthMs = 0
       , coin =
         { x = 100 + 15
         , y = 0 + 2
