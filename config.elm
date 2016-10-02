@@ -17,6 +17,10 @@ type alias Config =
         { x : Float
         , y : Float
         }
+    , debris :
+        { x : Float
+        , y : Float
+        }
     }
 
 
@@ -36,5 +40,9 @@ config =
     , coin =
         { x = 4
         , y = 9
+        }
+    , debris =
+        { x = 40
+        , y = 20
         }
     }

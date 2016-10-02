@@ -20,6 +20,10 @@ type alias Model =
         { x : Float
         , y : Float
         }
+    , debris :
+        { x : Float
+        , y : Float
+        }
     , intervalLengthMs : Float
     }
 
@@ -51,7 +55,7 @@ coinCollected : Model -> Bool
 coinCollected model =
     if (model.x - model.coin.x |> abs) > config.vehicle.x / 2 then
         False
-    else if (model.y - model.coin.y |> abs) > config.vehicle.y / 2 then
+    else if (model.y - model.coin.y |> abs) > config.vehicle.y then
         False
     else
         True
@@ -153,12 +157,16 @@ vehicle model =
                 { model
                     | paused = True
                     , dy = 0
-                    , y = 10
+                    , y = 50
                     , x = 50
                     , dx = 0
                     , dtheta = 0
                     , theta = 0
                     , score = 0
+                    , debris =
+                        { x = x1
+                        , y = y1
+                        }
                 }
 
             _ ->

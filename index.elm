@@ -111,6 +111,7 @@ gameView model =
     svg [ viewBox "0 0 200 100", width "100%" ]
         [ line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
         , coinView model
+        , debrisView model
         , vehicleView model
         , vehicleView { model | x = model.x - 200 }
         ]
@@ -124,6 +125,19 @@ coinView model =
         , y (100 - model.coin.y - config.coin.y / 2 |> toString)
         ]
         []
+
+
+debrisView : Model -> Svg.Svg a
+debrisView model =
+    if model.paused then
+        use
+            [ xlinkHref ("graphics/debris.svg#debris")
+            , x (model.debris.x - config.debris.x / 2 |> toString)
+            , y (100 - model.debris.y - config.debris.y / 2 |> toString)
+            ]
+            []
+    else
+        Svg.text ""
 
 
 vehicleView : Model -> Svg.Svg a
@@ -157,7 +171,7 @@ vehicleView model =
             [ xlinkHref ("graphics/helicopter.svg#" ++ svgId)
             , x leftX
             , y topY
-            , transform (vehicleTransform)
+            , transform vehicleTransform
             ]
             []
 
@@ -183,6 +197,10 @@ init =
       , coin =
             { x = 150
             , y = 50
+            }
+      , debris =
+            { x = -50
+            , y = -50
             }
       }
     , Cmd.none
