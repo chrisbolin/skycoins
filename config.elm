@@ -12,4 +12,8 @@ config =
     { theta = 2
     , dx = 1.1
     }
+  , coin =
+    { x = 4
+    , y = 9
+    }
   }

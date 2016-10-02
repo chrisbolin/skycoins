@@ -2,7 +2,6 @@ import Html exposing (Html, button, div, text, h6)
 import Html.App as App
 import Html.Attributes exposing (style)
 import AnimationFrame
-import Debug exposing (log)
 import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
@@ -11,7 +10,7 @@ import Model exposing (Model)
 import Config exposing (config)
 
 -- Main
-
+main : Program Never
 main = App.program
   {
    subscriptions = subscriptions,
@@ -75,9 +74,7 @@ view model =
     divStyle = Html.Attributes.style [("padding", "0px")]
   in
     div [ divStyle ]
-      [ gameView model
-      , text (model.dx |> abs |> round |> toString)
-        ]
+      [ gameView model ]
 
 gameView : Model -> Html Msg
 gameView model =
@@ -86,17 +83,17 @@ gameView model =
       line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
       , use [
       xlinkHref ("graphics/coin.svg#coin")
-      , x "50"
-      , y "50"
+      , x (toString model.coin.x)
+      , y (100 - config.coin.y - model.coin.y |> toString)
       ] []
       , vehicleView model
       , vehicleView {model | x = model.x - 200}
     ]
 
+vehicleView : Model -> Svg.Svg a
 vehicleView model =
   let
     vehicleY = (100 - config.vehicle.y - model.y)
-    vehicleX = model.x
     rotateX = model.x + config.vehicle.x / 2 |> toString
     rotateY = 100 - model.y - config.vehicle.y / 2 |> toString
     vehicleTransform = "rotate(" ++ toString model.theta ++ " " ++ rotateX ++ " " ++ rotateY ++ ")"
@@ -109,7 +106,7 @@ vehicleView model =
   in
     use [
       xlinkHref ("graphics/helicopter.svg#" ++ svgId)
-      , x (toString vehicleX)
+      , x (toString model.x)
       , y (toString vehicleY)
       , transform (vehicleTransform)
       ] []
@@ -125,11 +122,15 @@ init =
       rightThruster = False,
       leftThruster = False,
       x = 100,
-      y = config.vehicle.y,
+      y = 0,
       theta = 0,
       dx = 0,
       dy = 0,
       dtheta = 0
+      , coin =
+        { x = 100 + 15
+        , y = 0 + 2
+        }
     },
     Cmd.none
   )

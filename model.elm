@@ -14,11 +14,17 @@ type alias Model =
     theta: Float,
     dx: Float,
     dy: Float,
-    dtheta: Float
+    dtheta: Float,
+    coin :
+    {
+      x: Float,
+      y: Float
+    }
   }
 
 type State = Flying | Crashed | Landed | Paused
 
+determineState : Model -> State
 determineState model =
   if model.paused then Paused
   else if model.y > 0 then Flying
@@ -27,6 +33,7 @@ determineState model =
   else if (model.theta > 30) && (model.theta < 330) then Crashed
   else Landed
 
+tick : Model -> Float -> Model
 tick model intervalLengthMs =
   let
     -- scaling
