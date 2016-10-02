@@ -1,4 +1,4 @@
-module Msg exposing (Msg(KeyDown, KeyUp, Tick))
+module Msg exposing (Msg(..))
 
 import Keyboard exposing (KeyCode)
 

@@ -7,7 +7,7 @@ import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
 import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
-import Model exposing (Model)
+import Model exposing (Model, State(Paused, Flying))
 import Config exposing (config)
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
 
@@ -33,25 +33,33 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick intervalLengthMs ->
-            ( Model.tick { model | intervalLengthMs = intervalLengthMs }, Cmd.none )
+            ( Model.interate { model | intervalLengthMs = intervalLengthMs }, Cmd.none )
 
         KeyDown code ->
             case code of
                 32 ->
                     -- Spacebar
-                    ( { model | paused = not model.paused }, Cmd.none )
+                    ( { model
+                        | state =
+                            if model.state == Paused then
+                                Flying
+                            else
+                                Paused
+                      }
+                    , Cmd.none
+                    )
 
                 37 ->
                     -- Left
-                    ( { model | leftThruster = True, paused = False }, Cmd.none )
+                    ( { model | leftThruster = True, state = Flying }, Cmd.none )
 
                 38 ->
                     -- Up
-                    ( { model | mainEngine = True, paused = False }, Cmd.none )
+                    ( { model | mainEngine = True, state = Flying }, Cmd.none )
 
                 39 ->
                     -- Right
-                    ( { model | rightThruster = True, paused = False }, Cmd.none )
+                    ( { model | rightThruster = True, state = Flying }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -124,7 +132,7 @@ coinView model =
 
 debrisView : Model -> Svg.Svg a
 debrisView model =
-    if model.paused then
+    if model.debris.show then
         use
             [ xlinkHref ("graphics/debris.svg#debris")
             , x (model.debris.x - config.debris.x / 2 |> toString)
@@ -151,7 +159,7 @@ vehicleView model =
             "rotate(" ++ toString model.theta ++ " " ++ toString model.x ++ " " ++ rotateY ++ ")"
 
         svgId =
-            if model.paused then
+            if model.state == Paused then
                 "none"
             else if model.mainEngine && (model.rightThruster || model.leftThruster) then
                 "all"
@@ -177,26 +185,4 @@ vehicleView model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { paused = True
-      , score = 0
-      , mainEngine = False
-      , rightThruster = False
-      , leftThruster = False
-      , x = 100
-      , y = 20
-      , theta = 0
-      , dx = 0
-      , dy = 0
-      , dtheta = 0
-      , intervalLengthMs = 0
-      , coin =
-            { x = 150
-            , y = 50
-            }
-      , debris =
-            { x = -50
-            , y = -50
-            }
-      }
-    , Cmd.none
-    )
+    ( Model.initialModel, Cmd.none )

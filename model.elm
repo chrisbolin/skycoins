@@ -1,11 +1,18 @@
-module Model exposing (Model, tick)
+module Model exposing (Model, State(..), interate, initialModel)
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
 
 
+type State
+    = Flying
+    | Crashed
+    | Landed
+    | Paused
+
+
 type alias Model =
-    { paused : Bool
+    { state : State
     , score : Int
     , mainEngine : Bool
     , rightThruster : Bool
@@ -23,32 +30,54 @@ type alias Model =
     , debris :
         { x : Float
         , y : Float
+        , show : Bool
         }
     , intervalLengthMs : Float
     }
 
 
-type State
-    = Flying
-    | Crashed
-    | Landed
-    | Paused
+initialModel : Model
+initialModel =
+    { state = Paused
+    , score = 0
+    , mainEngine = False
+    , rightThruster = False
+    , leftThruster = False
+    , x = 100
+    , y = 20
+    , theta = 0
+    , dx = 0
+    , dy = 0
+    , dtheta = 0
+    , intervalLengthMs = 0
+    , coin =
+        { x = 150
+        , y = 50
+        }
+    , debris =
+        { x = 0
+        , y = 0
+        , show = False
+        }
+    }
 
 
-determineState : Model -> State
-determineState model =
-    if model.paused then
-        Paused
+state : Model -> Model
+state model =
+    if model.state == Paused then
+        model
+    else if model.state == Crashed then
+        { model | state = Paused }
     else if model.y > (config.vehicle.y / 2) then
-        Flying
+        { model | state = Flying }
     else if abs model.dy > 10 then
-        Crashed
+        { model | state = Crashed }
     else if abs model.dx > 15 then
-        Crashed
+        { model | state = Crashed }
     else if (model.theta > 30) && (model.theta < 330) then
-        Crashed
+        { model | state = Crashed }
     else
-        Landed
+        { model | state = Landed }
 
 
 coinCollected : Model -> Bool
@@ -61,9 +90,9 @@ coinCollected model =
         True
 
 
-tick : Model -> Model
-tick model =
-    model |> vehicle |> coin
+interate : Model -> Model
+interate model =
+    model |> state |> vehicle |> coin
 
 
 coin : Model -> Model
@@ -90,9 +119,6 @@ vehicle model =
         thetaRad =
             degrees model.theta
 
-        state =
-            determineState model
-
         dyEngine =
             if model.mainEngine then
                 config.engine * intervalLength * cos thetaRad
@@ -107,7 +133,7 @@ vehicle model =
 
         -- computed
         dy1 =
-            (if state == Flying then
+            (if model.state == Flying then
                 model.dy - config.gravity * intervalLength
              else
                 0
@@ -119,7 +145,7 @@ vehicle model =
 
         -- don't go "under" the ground
         dx1 =
-            if state == Flying then
+            if model.state == Flying then
                 (model.dx + dxEngine)
             else
                 model.dx / config.correction.dx
@@ -128,7 +154,7 @@ vehicle model =
             (floatModulo (model.x + dx1 * intervalLength) 200)
 
         dtheta1 =
-            if state == Flying then
+            if model.state == Flying then
                 (if model.leftThruster == model.rightThruster then
                     model.dtheta
                  else if model.leftThruster then
@@ -142,21 +168,20 @@ vehicle model =
                 0
 
         theta1 =
-            if state == Flying then
+            if model.state == Flying then
                 floatModulo (model.theta + dtheta1 * intervalLength) 360
             else if model.theta < 180 then
                 (model.theta + 0) / config.correction.theta
             else
                 (model.theta + 360) / config.correction.theta
     in
-        case state of
+        case model.state of
             Paused ->
                 model
 
             Crashed ->
                 { model
-                    | paused = True
-                    , dy = 0
+                    | dy = 0
                     , y = 50
                     , x = 50
                     , dx = 0
@@ -166,6 +191,7 @@ vehicle model =
                     , debris =
                         { x = x1
                         , y = y1
+                        , show = True
                         }
                 }
 
@@ -177,4 +203,9 @@ vehicle model =
                     , dx = dx1
                     , dtheta = dtheta1
                     , theta = theta1
+                    , debris =
+                        { show = False
+                        , x = 0
+                        , y = 0
+                        }
                 }
