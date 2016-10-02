@@ -84,6 +84,11 @@ gameView model =
   svg [ viewBox "0 0 200 100", width "100%" ]
     [
       line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
+      , use [
+      xlinkHref ("graphics/coin.svg#coin")
+      , x "50"
+      , y "50"
+      ] []
       , vehicleView model
       , vehicleView {model | x = model.x - 200}
     ]
