@@ -6,7 +6,7 @@ import Html.Attributes exposing (style)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Svg exposing (svg, circle, line, rect, use)
-import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform)
+import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform, strokeWidth)
 import Model exposing (Model, State(Paused, Flying))
 import Config exposing (config)
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
@@ -112,8 +112,8 @@ view model =
 gameView : Model -> Html Msg
 gameView model =
     svg [ viewBox "0 0 200 100", width "100%" ]
-        [ line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "darkgreen" ] []
-        , coinView model
+        [ coinView model
+        , oceanView
         , debrisView model
         , vehicleView model
         , vehicleView { model | x = model.x - 200 }
@@ -128,6 +128,11 @@ coinView model =
         , y (100 - model.coin.y - config.coin.y / 2 |> toString)
         ]
         []
+
+
+oceanView : Svg.Svg a
+oceanView =
+    line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "#202692", strokeWidth "10" ] []
 
 
 debrisView : Model -> Svg.Svg a
