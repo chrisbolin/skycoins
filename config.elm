@@ -9,6 +9,7 @@ type alias Config =
     , gravity : Float
     , engine : Float
     , thrusters : Float
+    , backgroundColor : String
     , base :
         { y : Float
         , color : String
@@ -42,12 +43,13 @@ config =
     , gravity = 1.5
     , engine = 2.2
     , thrusters = 2
+    , backgroundColor = "#9DACC9"
     , base =
         { color = "#202692"
         , y = 5
         }
     , pad =
-        { color = "grey"
+        { color = "#808080"
         , x = 30
         , y = 3
         }

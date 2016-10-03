@@ -103,7 +103,11 @@ view : Model -> Html Msg
 view model =
     let
         divStyle =
-            Html.Attributes.style [ ( "padding", "0px" ) ]
+            Html.Attributes.style
+                [ ( "padding", "0px" )
+                , ( "height", "100vh" )
+                , ( "background-color", config.base.color )
+                ]
     in
         div [ divStyle ]
             [ gameView model, text (toString model.score) ]
@@ -111,7 +115,11 @@ view model =
 
 gameView : Model -> Html Msg
 gameView model =
-    svg [ viewBox "0 0 200 100", width "100%" ]
+    svg
+        [ viewBox "0 0 200 100"
+        , width "100%"
+        , Svg.Attributes.style ("background-color:" ++ config.backgroundColor)
+        ]
         [ coinView model
         , baseView
         , debrisView model
