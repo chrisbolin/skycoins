@@ -19,7 +19,7 @@ import Svg.Attributes
         , strokeWidth
         , fontFamily
         )
-import Model exposing (Model, State(Paused, Flying))
+import Model exposing (Model, State(Paused, Flying), Goal(Coin))
 import Config exposing (config)
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
 
@@ -69,12 +69,15 @@ score model =
 
 coin : Model -> Svg.Svg a
 coin model =
-    use
-        [ xlinkHref ("graphics/coin.svg#coin")
-        , x (model.coin.x - config.coin.x / 2 |> toString)
-        , y (100 - model.coin.y - config.coin.y / 2 |> toString)
-        ]
-        []
+    if model.goal == Coin then
+        use
+            [ xlinkHref ("graphics/coin.svg#coin")
+            , x (model.coin.x - config.coin.x / 2 |> toString)
+            , y (100 - model.coin.y - config.coin.y / 2 |> toString)
+            ]
+            []
+    else
+        text ""
 
 
 base : Svg.Svg a

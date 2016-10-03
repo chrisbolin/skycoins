@@ -1,4 +1,4 @@
-module Model exposing (Model, State(..), interate, initialModel)
+module Model exposing (Model, State(..), Goal(..), interate, initialModel)
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
@@ -11,8 +11,14 @@ type State
     | Paused
 
 
+type Goal
+    = Coin
+    | Pad
+
+
 type alias Model =
     { state : State
+    , goal : Goal
     , score : Int
     , mainEngine : Bool
     , rightThruster : Bool
@@ -39,6 +45,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     { state = Paused
+    , goal = Coin
     , score = 0
     , mainEngine = False
     , rightThruster = False
@@ -62,6 +69,11 @@ initialModel =
     }
 
 
+interate : Model -> Model
+interate model =
+    model |> state |> goal |> vehicle |> coin
+
+
 state : Model -> Model
 state model =
     if model.state == Paused then
@@ -82,9 +94,21 @@ state model =
         { model | state = Landed }
 
 
+goal : Model -> Model
+goal model =
+    if model.state == Crashed then
+        { model | goal = Coin }
+    else if model.state == Landed then
+        { model | goal = Coin }
+    else
+        model
+
+
 coinCollected : Model -> Bool
 coinCollected model =
-    if (model.x - model.coin.x |> abs) > config.vehicle.x / 2 then
+    if model.goal == Pad then
+        False
+    else if (model.x - model.coin.x |> abs) > config.vehicle.x / 2 then
         False
     else if (model.y - model.coin.y |> abs) > config.vehicle.y then
         False
@@ -92,20 +116,16 @@ coinCollected model =
         True
 
 
-interate : Model -> Model
-interate model =
-    model |> state |> vehicle |> coin
-
-
 coin : Model -> Model
 coin model =
     if coinCollected model then
         { model
             | coin =
-                { x = floatModulo (model.coin.x + 47) 200
-                , y = clamp (config.base.y + config.coin.y) 100 (floatModulo (model.coin.y + 27) 100)
+                { x = floatModulo (model.coin.x + 71) 200
+                , y = clamp (config.base.y + config.coin.y) 100 (floatModulo (model.coin.y + 39) 100)
                 }
             , score = model.score + 100
+            , goal = Pad
         }
     else
         model
