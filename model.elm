@@ -68,7 +68,7 @@ state model =
         model
     else if model.state == Crashed then
         { model | state = Paused }
-    else if model.y > (config.vehicle.y / 2) then
+    else if model.y > (config.vehicle.y / 2 + config.base.y) then
         { model | state = Flying }
     else if abs model.dy > 10 then
         { model | state = Crashed }
@@ -101,7 +101,7 @@ coin model =
         { model
             | coin =
                 { x = floatModulo (model.coin.x + 47) 200
-                , y = floatModulo (model.coin.y + 27) 100
+                , y = clamp (config.base.y + config.coin.y) 100 (floatModulo (model.coin.y + 27) 100)
                 }
             , score = model.score + 100
         }
@@ -141,7 +141,7 @@ vehicle model =
                 + dyEngine
 
         y1 =
-            max (config.vehicle.y / 2) (model.y + dy1 * intervalLength)
+            max (config.vehicle.y / 2 + config.base.y) (model.y + dy1 * intervalLength)
 
         -- don't go "under" the ground
         dx1 =

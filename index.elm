@@ -132,7 +132,15 @@ coinView model =
 
 oceanView : Svg.Svg a
 oceanView =
-    line [ x1 "0", y1 "100", x2 "200", y2 "100", stroke "#202692", strokeWidth "10" ] []
+    line
+        [ x1 "0"
+        , y1 "100"
+        , x2 "200"
+        , y2 "100"
+        , stroke config.base.color
+        , strokeWidth (config.base.y * 2 |> toString)
+        ]
+        []
 
 
 debrisView : Model -> Svg.Svg a

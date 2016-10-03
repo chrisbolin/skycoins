@@ -9,6 +9,10 @@ type alias Config =
     , gravity : Float
     , engine : Float
     , thrusters : Float
+    , base :
+        { y : Float
+        , color : String
+        }
     , correction :
         { theta : Float
         , dx : Float
@@ -33,6 +37,10 @@ config =
     , gravity = 1.5
     , engine = 2.2
     , thrusters = 2
+    , base =
+        { color = "#202692"
+        , y = 5
+        }
     , correction =
         { theta = 2
         , dx = 1.1
