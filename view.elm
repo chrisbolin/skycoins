@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import Html exposing (Html, button, div, h6)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (style, type')
 import Svg exposing (svg, circle, line, rect, use, g, text, text')
 import Svg.Attributes
     exposing
@@ -33,9 +33,17 @@ view model =
                 , ( "height", "100vh" )
                 , ( "background-color", config.base.color )
                 ]
+
+        fontImport =
+            Html.node "style"
+                [ type' "text/css" ]
+                [ Html.text "@import 'https://fonts.googleapis.com/css?family=VT323"
+                ]
     in
         div [ mainStyle ]
-            [ game model ]
+            [ fontImport
+            , game model
+            ]
 
 
 game : Model -> Html Msg
@@ -56,7 +64,7 @@ game model =
 
 score : Model -> Svg.Svg a
 score model =
-    text' [ y "10", fontFamily "monospace" ] [ text (toString model.score) ]
+    text' [ y "10", fontFamily "VT323, monospace" ] [ text (toString model.score) ]
 
 
 coin : Model -> Svg.Svg a
