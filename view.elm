@@ -1,9 +1,24 @@
 module View exposing (view)
 
-import Html exposing (Html, button, div, text, h6)
+import Html exposing (Html, button, div, h6)
 import Html.Attributes exposing (style)
-import Svg exposing (svg, circle, line, rect, use, g)
-import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform, strokeWidth)
+import Svg exposing (svg, circle, line, rect, use, g, text, text')
+import Svg.Attributes
+    exposing
+        ( viewBox
+        , width
+        , x
+        , y
+        , x1
+        , y1
+        , x2
+        , y2
+        , xlinkHref
+        , stroke
+        , transform
+        , strokeWidth
+        , fontFamily
+        )
 import Model exposing (Model, State(Paused, Flying))
 import Config exposing (config)
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
@@ -12,34 +27,40 @@ import Msg exposing (Msg(Tick, KeyUp, KeyDown))
 view : Model -> Html Msg
 view model =
     let
-        divStyle =
+        mainStyle =
             Html.Attributes.style
                 [ ( "padding", "0px" )
                 , ( "height", "100vh" )
                 , ( "background-color", config.base.color )
                 ]
     in
-        div [ divStyle ]
-            [ gameView model, text (toString model.score) ]
+        div [ mainStyle ]
+            [ game model ]
 
 
-gameView : Model -> Html Msg
-gameView model =
+game : Model -> Html Msg
+game model =
     svg
         [ viewBox "0 0 200 100"
         , width "100%"
         , Svg.Attributes.style ("background-color:" ++ config.backgroundColor)
         ]
-        [ coinView model
-        , baseView
-        , debrisView model
-        , vehicleView model
-        , vehicleView { model | x = model.x - 200 }
+        [ coin model
+        , base
+        , score model
+        , debris model
+        , vehicle model
+        , vehicle { model | x = model.x - 200 }
         ]
 
 
-coinView : Model -> Svg.Svg a
-coinView model =
+score : Model -> Svg.Svg a
+score model =
+    text' [ y "10", fontFamily "monospace" ] [ text (toString model.score) ]
+
+
+coin : Model -> Svg.Svg a
+coin model =
     use
         [ xlinkHref ("graphics/coin.svg#coin")
         , x (model.coin.x - config.coin.x / 2 |> toString)
@@ -48,8 +69,8 @@ coinView model =
         []
 
 
-baseView : Svg.Svg a
-baseView =
+base : Svg.Svg a
+base =
     g []
         [ line
             [ x1 "0"
@@ -72,8 +93,8 @@ baseView =
         ]
 
 
-debrisView : Model -> Svg.Svg a
-debrisView model =
+debris : Model -> Svg.Svg a
+debris model =
     if model.debris.show then
         use
             [ xlinkHref ("graphics/debris.svg#debris")
@@ -82,11 +103,11 @@ debrisView model =
             ]
             []
     else
-        Svg.text ""
+        text ""
 
 
-vehicleView : Model -> Svg.Svg a
-vehicleView model =
+vehicle : Model -> Svg.Svg a
+vehicle model =
     let
         rotateY =
             100 - model.y |> toString
