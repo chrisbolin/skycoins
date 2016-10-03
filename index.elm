@@ -5,7 +5,7 @@ import Html.App as App
 import Html.Attributes exposing (style)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Svg exposing (svg, circle, line, rect, use)
+import Svg exposing (svg, circle, line, rect, use, g)
 import Svg.Attributes exposing (viewBox, width, x, y, x1, y1, x2, y2, xlinkHref, stroke, transform, strokeWidth)
 import Model exposing (Model, State(Paused, Flying))
 import Config exposing (config)
@@ -113,7 +113,7 @@ gameView : Model -> Html Msg
 gameView model =
     svg [ viewBox "0 0 200 100", width "100%" ]
         [ coinView model
-        , oceanView
+        , baseView
         , debrisView model
         , vehicleView model
         , vehicleView { model | x = model.x - 200 }
@@ -130,17 +130,28 @@ coinView model =
         []
 
 
-oceanView : Svg.Svg a
-oceanView =
-    line
-        [ x1 "0"
-        , y1 "100"
-        , x2 "200"
-        , y2 "100"
-        , stroke config.base.color
-        , strokeWidth (config.base.y * 2 |> toString)
+baseView : Svg.Svg a
+baseView =
+    g []
+        [ line
+            [ x1 "0"
+            , y1 "100"
+            , x2 "200"
+            , y2 "100"
+            , stroke config.base.color
+            , strokeWidth (config.base.y * 2 |> toString)
+            ]
+            []
+        , line
+            [ x1 "50"
+            , y1 (100 - config.base.y |> toString)
+            , x2 (50 + config.pad.x |> toString)
+            , y2 (100 - config.base.y |> toString)
+            , stroke config.pad.color
+            , strokeWidth (config.pad.y |> toString)
+            ]
+            []
         ]
-        []
 
 
 debrisView : Model -> Svg.Svg a

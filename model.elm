@@ -70,6 +70,8 @@ state model =
         { model | state = Paused }
     else if model.y > (config.vehicle.y / 2 + config.base.y) then
         { model | state = Flying }
+    else if model.x < 45 || model.x > 50 + config.pad.x then
+        { model | state = Crashed }
     else if abs model.dy > 10 then
         { model | state = Crashed }
     else if abs model.dx > 15 then

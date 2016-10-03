@@ -13,6 +13,11 @@ type alias Config =
         { y : Float
         , color : String
         }
+    , pad :
+        { y : Float
+        , x : Float
+        , color : String
+        }
     , correction :
         { theta : Float
         , dx : Float
@@ -40,6 +45,11 @@ config =
     , base =
         { color = "#202692"
         , y = 5
+        }
+    , pad =
+        { color = "grey"
+        , x = 30
+        , y = 3
         }
     , correction =
         { theta = 2
