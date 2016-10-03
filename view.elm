@@ -13,6 +13,7 @@ import Svg.Attributes
         , y1
         , x2
         , y2
+        , opacity
         , xlinkHref
         , stroke
         , transform
@@ -54,7 +55,7 @@ game model =
         , Svg.Attributes.style ("background-color:" ++ config.backgroundColor)
         ]
         [ coin model
-        , base
+        , base model
         , score model
         , debris model
         , vehicle model
@@ -80,28 +81,48 @@ coin model =
         text ""
 
 
-base : Svg.Svg a
-base =
-    g []
-        [ line
-            [ x1 "0"
-            , y1 "100"
-            , x2 "200"
-            , y2 "100"
-            , stroke config.base.color
-            , strokeWidth (config.base.y * 2 |> toString)
+base : Model -> Svg.Svg a
+base model =
+    let
+        baseY =
+            100 - config.base.y
+
+        vehicleWidth =
+            config.vehicle.x * cos (degrees model.theta)
+    in
+        g []
+            [ line
+                -- ocean
+                [ x1 "0"
+                , y1 "100"
+                , x2 "200"
+                , y2 "100"
+                , stroke config.base.color
+                , strokeWidth (config.base.y * 2 |> toString)
+                ]
+                []
+            , line
+                -- pad
+                [ x1 "50"
+                , y1 (baseY + 0.5 |> toString)
+                , x2 (50 + config.pad.x |> toString)
+                , y2 (baseY + 0.5 |> toString)
+                , stroke config.pad.color
+                , strokeWidth (config.pad.y |> toString)
+                ]
+                []
+            , line
+                -- shadow
+                [ x1 (model.x - vehicleWidth / 2 |> toString)
+                , y1 (baseY + 0.5 |> toString)
+                , x2 (model.x + vehicleWidth / 2 |> toString)
+                , y2 (baseY + 0.5 |> toString)
+                , stroke "black"
+                , opacity "0.4"
+                , strokeWidth "1"
+                ]
+                []
             ]
-            []
-        , line
-            [ x1 "50"
-            , y1 (100 - config.base.y |> toString)
-            , x2 (50 + config.pad.x |> toString)
-            , y2 (100 - config.base.y |> toString)
-            , stroke config.pad.color
-            , strokeWidth (config.pad.y |> toString)
-            ]
-            []
-        ]
 
 
 debris : Model -> Svg.Svg a
