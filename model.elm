@@ -98,7 +98,7 @@ goal : Model -> Model
 goal model =
     if model.state == Crashed then
         { model | goal = Coin }
-    else if model.state == Landed then
+    else if (model.state == Landed && model.dx < 0.01) then
         { model | goal = Coin }
     else
         model
