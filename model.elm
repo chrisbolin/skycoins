@@ -38,6 +38,7 @@ type alias Model =
         , y : Float
         , show : Bool
         }
+    , previousScore : Int
     , intervalLengthMs : Float
     }
 
@@ -57,6 +58,7 @@ initialModel =
     , dy = 0
     , dtheta = 0
     , intervalLengthMs = 0
+    , previousScore = 0
     , coin =
         { x = 111
         , y = 66
@@ -208,6 +210,7 @@ vehicle model =
                         , y = y1
                         , show = True
                         }
+                    , previousScore = model.score
                 }
 
             _ ->

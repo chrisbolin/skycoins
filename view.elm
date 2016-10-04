@@ -16,6 +16,7 @@ import Svg.Attributes
         , opacity
         , xlinkHref
         , stroke
+        , fill
         , transform
         , strokeWidth
         , fontFamily
@@ -75,7 +76,17 @@ game model =
 
 score : Model -> Svg.Svg a
 score model =
-    text' [ y "10", constants.fontFamily ] [ text (toString model.score) ]
+    let
+        score =
+            if model.state == Paused && model.score == 0 then
+                model.previousScore
+            else
+                model.score
+    in
+        if score > 0 then
+            text' [ y "13", x "3", constants.fontFamily ] [ text (toString score) ]
+        else
+            text ""
 
 
 coin : Model -> Svg.Svg a
@@ -188,7 +199,7 @@ title : Model -> Svg.Svg a
 title model =
     if model.state == Paused then
         g []
-            [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
+            [ text' [ y "50", constants.fontFamily, fontSize "59", fill "#dd5555" ] [ text "SKYCOINS" ]
             ]
     else
         text ""
