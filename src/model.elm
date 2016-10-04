@@ -86,9 +86,9 @@ state model =
         { model | state = Flying }
     else if model.x < 45 || model.x > 50 + config.pad.x then
         { model | state = Crashed }
-    else if abs model.dy > 10 then
+    else if abs model.dy > 15 then
         { model | state = Crashed }
-    else if abs model.dx > 15 then
+    else if abs model.dx > 20 then
         { model | state = Crashed }
     else if (model.theta > 30) && (model.theta < 330) then
         { model | state = Crashed }
