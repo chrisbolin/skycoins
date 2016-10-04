@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Html exposing (Html, button, div, h6)
 import Html.Attributes exposing (style, type')
-import Svg exposing (svg, circle, line, rect, use, g, text, text')
+import Svg exposing (svg, circle, line, rect, use, g, text, text', Attribute)
 import Svg.Attributes
     exposing
         ( viewBox
@@ -19,10 +19,19 @@ import Svg.Attributes
         , transform
         , strokeWidth
         , fontFamily
+        , fontSize
         )
 import Model exposing (Model, State(Paused, Flying), Goal(Coin))
 import Config exposing (config)
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
+
+
+constants :
+    { fontFamily : Attribute a
+    }
+constants =
+    { fontFamily = fontFamily "VT323, monospace"
+    }
 
 
 view : Model -> Html Msg
@@ -60,12 +69,13 @@ game model =
         , debris model
         , vehicle model
         , vehicle { model | x = model.x - 200 }
+        , title model
         ]
 
 
 score : Model -> Svg.Svg a
 score model =
-    text' [ y "10", fontFamily "VT323, monospace" ] [ text (toString model.score) ]
+    text' [ y "10", constants.fontFamily ] [ text (toString model.score) ]
 
 
 coin : Model -> Svg.Svg a
@@ -172,3 +182,13 @@ vehicle model =
             , transform vehicleTransform
             ]
             []
+
+
+title : Model -> Svg.Svg a
+title model =
+    if model.state == Paused then
+        g []
+            [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
+            ]
+    else
+        text ""

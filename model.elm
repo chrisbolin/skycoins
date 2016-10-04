@@ -50,16 +50,16 @@ initialModel =
     , mainEngine = False
     , rightThruster = False
     , leftThruster = False
-    , x = 100
-    , y = 20
+    , x = 140
+    , y = 40
     , theta = 0
     , dx = 0
     , dy = 0
     , dtheta = 0
     , intervalLengthMs = 0
     , coin =
-        { x = 150
-        , y = 50
+        { x = 111
+        , y = 66
         }
     , debris =
         { x = 0
@@ -202,15 +202,8 @@ vehicle model =
                 model
 
             Crashed ->
-                { model
-                    | dy = 0
-                    , y = 50
-                    , x = 50
-                    , dx = 0
-                    , dtheta = 0
-                    , theta = 0
-                    , score = 0
-                    , debris =
+                { initialModel
+                    | debris =
                         { x = x1
                         , y = y1
                         , show = True
