@@ -60,8 +60,8 @@ initialModel =
     , intervalLengthMs = 0
     , previousScore = 0
     , coin =
-        { x = 111
-        , y = 66
+        { x = 111.5
+        , y = 65.6
         }
     , debris =
         { x = 0

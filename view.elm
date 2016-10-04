@@ -29,9 +29,11 @@ import Msg exposing (Msg(Tick, KeyUp, KeyDown))
 
 constants :
     { fontFamily : Attribute a
+    , red : String
     }
 constants =
     { fontFamily = fontFamily "VT323, monospace"
+    , red = "#dd5555"
     }
 
 
@@ -198,16 +200,21 @@ vehicle model =
 title : Model -> Svg.Svg a
 title model =
     if model.state == Paused then
-        g []
-            [ text' [ y "50", constants.fontFamily, fontSize "59", fill "#dd5555" ] [ text "SKYCOINS" ]
-            , text' [ y "61", x "2", constants.fontFamily, fontSize "7", fill "#dd5555" ]
+        g [ fontSize "7", fill constants.red ]
+            [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
+            , text' [ y "62", x "2", constants.fontFamily ]
                 [ text """"A really shitty game." - early fan"""
                 ]
-            , text' [ y "70", x "2", constants.fontFamily, fontSize "7", fill "#dd5555" ]
-                [ text "© 2016 "
-                , a
-                    [ y "50", xlinkHref "http://chris.bolin.co", fill "#dd5555" ]
-                    [ text "chris bolin"
+            , text' [ y "70", x "2.9", constants.fontFamily ]
+                [ text "get coins. land. repeat."
+                ]
+            , text' [ y "78", x "2.9", constants.fontFamily ]
+                [ text "up/left/right/space"
+                ]
+            , text' [ y "92", x "166", constants.fontFamily, fontSize "4", fill "black" ]
+                [ a
+                    [ y "50", xlinkHref "http://chris.bolin.co", fill "black" ]
+                    [ text "© 2016 chris bolin"
                     ]
                 ]
             ]

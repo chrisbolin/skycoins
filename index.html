@@ -8523,7 +8523,7 @@ var _elm_lang$elm_architecture_tutorial$Model$initialModel = {
 	dtheta: 0,
 	intervalLengthMs: 0,
 	previousScore: 0,
-	coin: {x: 111, y: 66},
+	coin: {x: 111.5, y: 65.6},
 	debris: {x: 0, y: 0, show: false}
 };
 var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
@@ -9407,7 +9407,8 @@ var _elm_lang$elm_architecture_tutorial$View$coin = function (model) {
 			[])) : _elm_lang$svg$Svg$text('');
 };
 var _elm_lang$elm_architecture_tutorial$View$constants = {
-	fontFamily: _elm_lang$svg$Svg_Attributes$fontFamily('VT323, monospace')
+	fontFamily: _elm_lang$svg$Svg_Attributes$fontFamily('VT323, monospace'),
+	red: '#dd5555'
 };
 var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 	var score = (_elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) && _elm_lang$core$Native_Utils.eq(model.score, 0)) ? model.previousScore : model.score;
@@ -9430,7 +9431,10 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? A2(
 		_elm_lang$svg$Svg$g,
 		_elm_lang$core$Native_List.fromArray(
-			[]),
+			[
+				_elm_lang$svg$Svg_Attributes$fontSize('7'),
+				_elm_lang$svg$Svg_Attributes$fill(_elm_lang$elm_architecture_tutorial$View$constants.red)
+			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
@@ -9439,8 +9443,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('50'),
 						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
-						_elm_lang$svg$Svg_Attributes$fontSize('59'),
-						_elm_lang$svg$Svg_Attributes$fill('#dd5555')
+						_elm_lang$svg$Svg_Attributes$fontSize('59')
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9450,11 +9453,9 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 				_elm_lang$svg$Svg$text$,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$svg$Svg_Attributes$y('61'),
+						_elm_lang$svg$Svg_Attributes$y('62'),
 						_elm_lang$svg$Svg_Attributes$x('2'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
-						_elm_lang$svg$Svg_Attributes$fontSize('7'),
-						_elm_lang$svg$Svg_Attributes$fill('#dd5555')
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9465,25 +9466,48 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$svg$Svg_Attributes$y('70'),
-						_elm_lang$svg$Svg_Attributes$x('2'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
-						_elm_lang$svg$Svg_Attributes$fontSize('7'),
-						_elm_lang$svg$Svg_Attributes$fill('#dd5555')
+						_elm_lang$svg$Svg_Attributes$x('2.9'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$svg$Svg$text('© 2016 '),
+						_elm_lang$svg$Svg$text('get coins. land. repeat.')
+					])),
+				A2(
+				_elm_lang$svg$Svg$text$,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg_Attributes$y('78'),
+						_elm_lang$svg$Svg_Attributes$x('2.9'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text('up/left/right/space')
+					])),
+				A2(
+				_elm_lang$svg$Svg$text$,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg_Attributes$y('92'),
+						_elm_lang$svg$Svg_Attributes$x('166'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontSize('4'),
+						_elm_lang$svg$Svg_Attributes$fill('black')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
 						A2(
 						_elm_lang$svg$Svg$a,
 						_elm_lang$core$Native_List.fromArray(
 							[
 								_elm_lang$svg$Svg_Attributes$y('50'),
 								_elm_lang$svg$Svg_Attributes$xlinkHref('http://chris.bolin.co'),
-								_elm_lang$svg$Svg_Attributes$fill('#dd5555')
+								_elm_lang$svg$Svg_Attributes$fill('black')
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$svg$Svg$text('chris bolin')
+								_elm_lang$svg$Svg$text('© 2016 chris bolin')
 							]))
 					]))
 			])) : _elm_lang$svg$Svg$text('');
