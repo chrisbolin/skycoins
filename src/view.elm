@@ -206,7 +206,7 @@ title model =
                 [ text """"A really shitty game." - early fan"""
                 ]
             , text' [ y "70", x "2.9", constants.fontFamily ]
-                [ text "get coins. land. repeat."
+                [ text "get coins. land safely. repeat."
                 ]
             , text' [ y "78", x "2.9", constants.fontFamily ]
                 [ text "up/left/right/space"
