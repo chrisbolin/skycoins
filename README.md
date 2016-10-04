@@ -1,8 +1,8 @@
-# SKYCOINS
+# SKYCOINS: A Game
 
-W.I.P.
+[bolin.co/skycoins](http://chris.bolin.co/skycoins)
 
-## All The Things
+## Code
 
 * `git clone ...`
 * `cd ...`
