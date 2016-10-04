@@ -1,28 +1,9 @@
-module Main exposing (..)
+module Update exposing (update)
 
-import Html.App as App
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Model exposing (Model, State(Paused, Flying))
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
-import View exposing (view)
-
-
--- Main
-
-
-main : Program Never
-main =
-    App.program
-        { subscriptions = subscriptions
-        , view = view
-        , update = update
-        , init = init
-        }
-
-
-
--- Update
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
