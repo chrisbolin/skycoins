@@ -1,18 +1,13 @@
 module Utils exposing (..)
 
+-- inefficient but effective for our purposes
+
 
 floatModulo : Float -> Float -> Float
 floatModulo number modulo =
-    let
-        rounded =
-            round number
-
-        difference =
-            toFloat rounded - number
-    in
-        if number > modulo then
-            number - modulo
-        else if number < 0 then
-            number + modulo
-        else
-            number
+    if number > modulo then
+        floatModulo (number - modulo) modulo
+    else if number < 0 then
+        floatModulo (number + modulo) modulo
+    else
+        number

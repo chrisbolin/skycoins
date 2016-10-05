@@ -8421,9 +8421,26 @@ var _elm_lang$keyboard$Keyboard$subMap = F2(
 _elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
 var _elm_lang$elm_architecture_tutorial$Utils$floatModulo = F2(
 	function (number, modulo) {
-		var rounded = _elm_lang$core$Basics$round(number);
-		var difference = _elm_lang$core$Basics$toFloat(rounded) - number;
-		return (_elm_lang$core$Native_Utils.cmp(number, modulo) > 0) ? (number - modulo) : ((_elm_lang$core$Native_Utils.cmp(number, 0) < 0) ? (number + modulo) : number);
+		floatModulo:
+		while (true) {
+			if (_elm_lang$core$Native_Utils.cmp(number, modulo) > 0) {
+				var _v0 = number - modulo,
+					_v1 = modulo;
+				number = _v0;
+				modulo = _v1;
+				continue floatModulo;
+			} else {
+				if (_elm_lang$core$Native_Utils.cmp(number, 0) < 0) {
+					var _v2 = number + modulo,
+						_v3 = modulo;
+					number = _v2;
+					modulo = _v3;
+					continue floatModulo;
+				} else {
+					return number;
+				}
+			}
+		}
 	});
 var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 	return function (b) {
