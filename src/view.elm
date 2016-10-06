@@ -209,7 +209,10 @@ title model =
                 [ text "get coins. land safely. repeat."
                 ]
             , text' [ y "78", x "2.9", constants.fontFamily ]
-                [ text "up/left/right/space"
+                [ text "up/left/right"
+                ]
+            , text' [ y "88", x "2.9", constants.fontFamily, fill "black" ]
+                [ text "PRESS SPACE TO PLAY"
                 ]
             , text' [ y "92", x "166", constants.fontFamily, fontSize "4", fill "black" ]
                 [ a

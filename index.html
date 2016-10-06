@@ -9500,7 +9500,20 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$svg$Svg$text('up/left/right/space')
+						_elm_lang$svg$Svg$text('up/left/right')
+					])),
+				A2(
+				_elm_lang$svg$Svg$text$,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg_Attributes$y('88'),
+						_elm_lang$svg$Svg_Attributes$x('2.9'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fill('black')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text('PRESS SPACE TO PLAY')
 					])),
 				A2(
 				_elm_lang$svg$Svg$text$,
@@ -9623,7 +9636,7 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
-								{leftThruster: true, state: _elm_lang$elm_architecture_tutorial$Model$Flying}),
+								{leftThruster: true}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					case 38:
@@ -9631,7 +9644,7 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
-								{mainEngine: true, state: _elm_lang$elm_architecture_tutorial$Model$Flying}),
+								{mainEngine: true}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					case 39:
@@ -9639,7 +9652,7 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
-								{rightThruster: true, state: _elm_lang$elm_architecture_tutorial$Model$Flying}),
+								{rightThruster: true}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					default:

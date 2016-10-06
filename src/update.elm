@@ -28,15 +28,15 @@ update msg model =
 
                 37 ->
                     -- Left
-                    ( { model | leftThruster = True, state = Flying }, Cmd.none )
+                    ( { model | leftThruster = True }, Cmd.none )
 
                 38 ->
                     -- Up
-                    ( { model | mainEngine = True, state = Flying }, Cmd.none )
+                    ( { model | mainEngine = True }, Cmd.none )
 
                 39 ->
                     -- Right
-                    ( { model | rightThruster = True, state = Flying }, Cmd.none )
+                    ( { model | rightThruster = True }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
