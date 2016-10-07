@@ -21,6 +21,7 @@ import Svg.Attributes
         , strokeWidth
         , fontFamily
         , fontSize
+        , textAnchor
         )
 import Model exposing (Model, State(Paused, Flying), Goal(Coin))
 import Config exposing (config)
@@ -85,10 +86,12 @@ score model =
             else
                 model.score
     in
-        if score > 0 then
-            text' [ y "13", x "3", constants.fontFamily, fontSize "14" ] [ text (toString score) ]
-        else
-            text ""
+        g []
+            [ text' [ y "13", x "3", constants.fontFamily, fontSize "14" ] [ text (toString score) ]
+            , text' [ y "5", x "158", constants.fontFamily, fontSize "4", fill "#ddd" ]
+                [ text ("ground speed, knots: " ++ (model.dx |> abs |> round |> toString))
+                ]
+            ]
 
 
 coin : Model -> Svg.Svg a

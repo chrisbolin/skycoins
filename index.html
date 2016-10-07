@@ -9429,20 +9429,47 @@ var _elm_lang$elm_architecture_tutorial$View$constants = {
 };
 var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 	var score = (_elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) && _elm_lang$core$Native_Utils.eq(model.score, 0)) ? model.previousScore : model.score;
-	return (_elm_lang$core$Native_Utils.cmp(score, 0) > 0) ? A2(
-		_elm_lang$svg$Svg$text$,
+	return A2(
+		_elm_lang$svg$Svg$g,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$svg$Svg_Attributes$y('13'),
-				_elm_lang$svg$Svg_Attributes$x('3'),
-				_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
-				_elm_lang$svg$Svg_Attributes$fontSize('14')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$svg$Svg$text(
-				_elm_lang$core$Basics$toString(score))
-			])) : _elm_lang$svg$Svg$text('');
+				A2(
+				_elm_lang$svg$Svg$text$,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg_Attributes$y('13'),
+						_elm_lang$svg$Svg_Attributes$x('3'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontSize('14')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text(
+						_elm_lang$core$Basics$toString(score))
+					])),
+				A2(
+				_elm_lang$svg$Svg$text$,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg_Attributes$y('5'),
+						_elm_lang$svg$Svg_Attributes$x('158'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontSize('4'),
+						_elm_lang$svg$Svg_Attributes$fill('#ddd')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'ground speed, knots: ',
+							_elm_lang$core$Basics$toString(
+								_elm_lang$core$Basics$round(
+									_elm_lang$core$Basics$abs(model.dx)))))
+					]))
+			]));
 };
 var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? A2(
