@@ -1,5 +1,8 @@
 module Utils exposing (..)
 
+import Svg.Attributes
+import String
+
 -- inefficient but effective for our purposes
 
 
@@ -11,3 +14,6 @@ floatModulo number modulo =
         floatModulo (number + modulo) modulo
     else
         number
+
+style' lst = Svg.Attributes.style <|
+  String.join ";" (List.map (\(prop,val) -> prop ++ ":" ++ val ) <| lst)
