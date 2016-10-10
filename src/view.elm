@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import Html exposing (Html, div)
-import Html.Attributes exposing (style, type')
+import Html.Attributes exposing (style, type', name, content)
 import Svg exposing (svg, circle, line, rect, use, g, a, text, text', Attribute)
 import Svg.Attributes
     exposing
@@ -22,10 +22,16 @@ import Svg.Attributes
         , fontFamily
         , fontSize
         , textAnchor
+        , cx
+        , cy
+        , r
         )
 import Model exposing (Model, State(Paused, Flying), Goal(Coin))
 import Config exposing (config)
-import Msg exposing (Msg(Tick, KeyUp, KeyDown))
+import Msg exposing (Msg(..))
+import TouchEvents exposing (onTouchStart,onTouchEnd,TouchEvent(..))
+import String
+import Utils exposing (style')
 
 
 constants :
@@ -46,6 +52,11 @@ view model =
                 [ ( "padding", "0px" )
                 , ( "height", "100vh" )
                 , ( "background-color", config.base.color )
+                , ( "-moz-user-select", "none" )
+                , ( "-webkit-user-select", "none" )
+                , ( "-ms-user-select", "none" )
+                , ( "user-select", "none" )
+                , ( "-o-user-select", "none" )
                 ]
 
         fontImport =
@@ -56,6 +67,7 @@ view model =
     in
         div [ mainStyle ]
             [ fontImport
+            , Html.node "meta" [ name "viewport", content "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" ] []
             , game model
             ]
 
@@ -64,17 +76,48 @@ game : Model -> Html Msg
 game model =
     svg
         [ viewBox "0 0 200 100"
-        , width "100%"
-        , Svg.Attributes.style ("background-color:" ++ config.backgroundColor)
+        , width <| toString ( if model.tapped then config.mobileWidth else 100 ) ++ "%"
+        , style' <| gameStyles model
+        , onTouchEnd StartGame
         ]
-        [ coin model
-        , base model
-        , score model
-        , debris model
-        , vehicle model
-        , vehicle { model | x = model.x - 200 }
-        , title model
+        <|
+            controls model ++
+            [ coin model
+            , base model
+            , score model
+            , debris model
+            , vehicle model
+            , vehicle { model | x = model.x - 200 }
+            , title model
+            ]
+
+gameStyles model =
+    if model.tapped then
+        [ ( "background-color", config.backgroundColor )
+        , ( "margin-top", toString ((100 - config.mobileWidth)/2) ++ "%" )
+        , ( "margin-left", toString ((100 - config.mobileWidth)/2) ++ "%" )
         ]
+    else
+        [ ( "background-color", config.backgroundColor ) ]
+
+controls : Model -> List (Svg.Svg Msg)
+controls model =
+    if model.tapped then
+        [ g [ onTouchStart EngineOn, onTouchEnd EngineOff ]
+            [ circle [ cy "20", cx "20", r "17", fill "#33ff00"] []
+            , text' [ y "24.5", constants.fontFamily, x "14", fontSize "16", fill "white" ] [ text "UP" ] 
+            ]
+        , g [ onTouchStart LeftThrustOn, onTouchEnd LeftThrustOff ]
+            [ circle [ cy "20", cx "150", r "11", fill "white" ] []
+            , text' [ y "24.5", constants.fontFamily, x "145.5", fontSize "16", fill "black" ] [ text "<" ]
+            ]
+        , g [ onTouchStart RightThrustOn, onTouchEnd RightThrustOff ]
+            [ circle [ cy "20", cx "180", r "11", fill "white"] []
+            , text' [ y "24.5", constants.fontFamily, x "178", fontSize "16", fill "black" ] [ text ">" ]
+            ]
+        ]
+    else
+        []
 
 
 score : Model -> Svg.Svg a
@@ -85,13 +128,16 @@ score model =
                 model.previousScore
             else
                 model.score
-    in
+        topY = model.y - config.vehicle.y |> round |> toString
+    in if model.state == Flying || model.score > 0 then
         g []
-            [ text' [ y "13", x "3", constants.fontFamily, fontSize "14" ] [ text (toString score) ]
-            , text' [ y "5", x "158", constants.fontFamily, fontSize "4", fill "#ddd" ]
-                [ text ("ground speed, knots: " ++ (model.dx |> abs |> round |> toString))
+            [ text' [ y "100", x "3", constants.fontFamily, fontSize "13", fill "white" ] [ text <| "SCORE: " ++ toString score ]
+            , text' [ y "96", x "158", constants.fontFamily, fontSize "4", fill "white" ]
+                [ text ("altitude: " ++ topY ++ ", knots: " ++ (model.dx |> abs |> round |> toString))
                 ]
             ]
+    else
+        g [] []
 
 
 coin : Model -> Svg.Svg a
@@ -107,7 +153,7 @@ coin model =
         text ""
 
 
-base : Model -> Svg.Svg a
+base : Model -> Svg.Svg Msg
 base model =
     let
         baseY =
@@ -116,7 +162,7 @@ base model =
         vehicleWidth =
             config.vehicle.x * cos (degrees model.theta)
     in
-        g []
+        g [] <|
             [ line
                 -- ocean
                 [ x1 "0"
@@ -148,7 +194,7 @@ base model =
                 , strokeWidth "1"
                 ]
                 []
-            ]
+            ]-- ++ (controls model)
 
 
 debris : Model -> Svg.Svg a
@@ -173,7 +219,7 @@ vehicle model =
         leftX =
             model.x - config.vehicle.x / 2 |> toString
 
-        topY =
+        topY = 
             100 - model.y - config.vehicle.y / 2 |> toString
 
         vehicleTransform =
@@ -200,24 +246,21 @@ vehicle model =
             []
 
 
-title : Model -> Svg.Svg a
+title : Model -> Svg.Svg Msg
 title model =
     if model.state == Paused then
         g [ fontSize "7", fill constants.red ]
             [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
             , text' [ y "62", x "2", constants.fontFamily ]
-                [ text """"A really shitty game." - early fan"""
+                [ text "Get coin. Land safely. Repeat."
                 ]
             , text' [ y "70", x "2.9", constants.fontFamily ]
-                [ text "get coins. land safely. repeat."
+                [ text "Use on-screen buttons or up/left/right" 
                 ]
-            , text' [ y "78", x "2.9", constants.fontFamily ]
-                [ text "up/left/right"
+            , text' [ y "83", x "25", constants.fontFamily, fill "yellow", fontSize "10" ]
+                [ text "TAP ANYWHERE OR PRESS SPACE TO PLAY"
                 ]
-            , text' [ y "88", x "2.9", constants.fontFamily, fill "black" ]
-                [ text "PRESS SPACE TO PLAY"
-                ]
-            , text' [ y "92", x "166", constants.fontFamily, fontSize "4", fill "black" ]
+            , text' [ y "4", x "166", constants.fontFamily, fontSize "4", fill "black" ]
                 [ a
                     [ y "50", xlinkHref "http://chris.bolin.co", fill "black" ]
                     [ text "© 2016 chris bolin"

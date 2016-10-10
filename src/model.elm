@@ -40,6 +40,7 @@ type alias Model =
         }
     , previousScore : Int
     , intervalLengthMs : Float
+    , tapped : Bool
     }
 
 
@@ -52,7 +53,7 @@ initialModel =
     , rightThruster = False
     , leftThruster = False
     , x = 140
-    , y = 40
+    , y = 60
     , theta = 0
     , dx = 0
     , dy = 0
@@ -68,6 +69,7 @@ initialModel =
         , y = 0
         , show = False
         }
+    , tapped = False
     }
 
 
@@ -124,7 +126,7 @@ coin model =
         { model
             | coin =
                 { x = floatModulo (model.coin.x + 71) 200
-                , y = clamp (config.base.y + config.coin.y) 100 (floatModulo (model.coin.y + 39) 100)
+                , y = clamp (config.base.y + config.coin.y) 100 (floatModulo (model.coin.y + 20) 100)
                 }
             , score = model.score + 100
             , goal = Pad
