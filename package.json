@@ -9,7 +9,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Everything is OK in your life.\"",
-    "build": "./build.sh",
+    "build": "elm-make main.elm --output=dist/elm.js",
     "start": "elm-live main.elm --port=8001 --output=dist/elm.js"
   },
   "repository": {
