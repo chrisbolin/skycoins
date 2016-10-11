@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Everything is OK in your life.\"",
     "build": "./build.sh",
-    "start": "elm-live main.elm --port=8001"
+    "start": "elm-live main.elm --port=8001 --output=dist/elm.js"
   },
   "repository": {
     "type": "git",
