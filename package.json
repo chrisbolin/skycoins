@@ -1,0 +1,30 @@
+{
+  "name": "skycoins",
+  "version": "6.6.6",
+  "description": "get coins. land safely. repeat.",
+  "main": "index.js",
+  "dependencies": {
+    "elm-live": "^2.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Everything is OK in your life.\"",
+    "build": "./build.sh",
+    "start": "elm-live main.elm --port=8001"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisbolin/skycoins.git"
+  },
+  "keywords": [
+    "sky",
+    "coins",
+    "skycoins"
+  ],
+  "author": "Chris Bolin, bolin.co",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/chrisbolin/skycoins/issues"
+  },
+  "homepage": "https://bolin.co/skycoins"
+}
