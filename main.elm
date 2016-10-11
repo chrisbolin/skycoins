@@ -7,7 +7,7 @@ import Model exposing (Model, State(Paused, Flying))
 import Msg exposing (Msg(Tick, KeyUp, KeyDown))
 import View exposing (view)
 import Update exposing (update)
-import Subscriptions exposing (subscriptions)
+import Subscriptions exposing (subscriptions, initialSizeCmd)
 
 
 -- Main
@@ -19,5 +19,6 @@ main =
         { subscriptions = subscriptions
         , view = view
         , update = update
-        , init = ( Model.initialModel, Cmd.none )
+        , init = ( Model.initialModel, initialSizeCmd )
         }
+

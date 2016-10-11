@@ -2,9 +2,10 @@ module Update exposing (update)
 
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Model exposing (Model, State(Paused, Flying))
+import Model exposing (Model, State(..))
 import Msg exposing (Msg(..))
 import TouchEvents exposing (TouchEvent(..))
+import Window
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -28,7 +29,12 @@ update msg model =
             case code of
                 32 ->
                     -- Spacebar
-                    ( startGame, Cmd.none )
+                    let model' = { startGame | tapped = False }
+                    in
+                        if model.state == Crashed then
+                            ( model', Cmd.none )
+                        else
+                            ( startGame, Cmd.none )
 
                 37 ->
                     -- Left
@@ -68,18 +74,43 @@ update msg model =
                 in ( model', Cmd.none )
             else
                 ( model, Cmd.none )
-        EngineOn _ ->
-            engine True
-        EngineOff _ ->
-            engine False
-        LeftThrustOn _ ->
-            leftThrust True
-        LeftThrustOff _ ->
-            leftThrust False
-        RightThrustOn _ ->
-            rightThrust True
-        RightThrustOff _ ->
-            rightThrust False
+        TouchOn event ->
+            let
+                pct = 100 * (event.clientX / (toFloat model.window.width))
+            in
+                if pct >= 0 && pct < 20 then
+                    leftThrust True
+                else if pct >= 20 && pct < 40 then
+                    ( { model | leftThruster = True, mainEngine = True }, Cmd.none )
+                else if pct >= 40 && pct < 60 then
+                    engine True
+                else if pct >= 60 && pct < 80 then
+                    ( { model | rightThruster = True, mainEngine = True }, Cmd.none )
+                else
+                    rightThrust True
+        
+        TouchOff _ ->
+            ( { model | leftThruster = False, rightThruster = False, mainEngine = False }, Cmd.none )
+        
+        --LeftThrustOn _ ->
+        --    leftThrust True
+        --LeftThrustOff _ ->
+        --    leftThrust False
+        --RightThrustOn _ ->
+        --    rightThrust True
+        --RightThrustOff _ ->
+        --    rightThrust False
+
+        WindowResize (w,h) ->
+            let
+                window' =
+                    { width = w
+                    , height = h
+                }
+            in
+                ( { model | window = window' }, Cmd.none )
+        _ ->
+            ( model, Cmd.none )
         
 
 

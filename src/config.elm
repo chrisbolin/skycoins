@@ -18,6 +18,8 @@ type alias Config =
         { y : Float
         , x : Float
         , color : String
+        , colorLand : String
+        , width : Float
         }
     , correction :
         { theta : Float
@@ -31,7 +33,6 @@ type alias Config =
         { x : Float
         , y : Float
         }
-    , mobileWidth : Float
     }
 
 
@@ -51,8 +52,10 @@ config =
         }
     , pad =
         { color = "#808080"
+        , colorLand = "#DDEF12"
         , x = 30
         , y = 3
+        , width = 150
         }
     , correction =
         { theta = 2
@@ -66,5 +69,4 @@ config =
         { x = 40
         , y = 20
         }
-    , mobileWidth = 75
     }

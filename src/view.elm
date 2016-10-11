@@ -1,12 +1,13 @@
 module View exposing (view)
 
-import Html exposing (Html, div)
-import Html.Attributes exposing (style, type', name, content)
+import Html exposing (Html, div, img, span)
+import Html.Attributes exposing (style, type', name, content, src, id)
 import Svg exposing (svg, circle, line, rect, use, g, a, text, text', Attribute)
 import Svg.Attributes
     exposing
         ( viewBox
         , width
+        , height
         , x
         , y
         , x1
@@ -26,7 +27,7 @@ import Svg.Attributes
         , cy
         , r
         )
-import Model exposing (Model, State(Paused, Flying), Goal(Coin))
+import Model exposing (Model, State(Paused, Flying), Goal(..), viewportMaxY)
 import Config exposing (config)
 import Msg exposing (Msg(..))
 import TouchEvents exposing (onTouchStart,onTouchEnd,TouchEvent(..))
@@ -69,6 +70,8 @@ view model =
             [ fontImport
             , Html.node "meta" [ name "viewport", content "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" ] []
             , game model
+            , miniVehicle model
+            , controls model
             ]
 
 
@@ -76,15 +79,14 @@ game : Model -> Html Msg
 game model =
     svg
         [ viewBox "0 0 200 100"
-        , width <| toString ( if model.tapped then config.mobileWidth else 100 ) ++ "%"
+        , width "100%"
+        , height <| toString ( if model.tapped then 105 else 100 ) ++ "vh"
         , style' <| gameStyles model
         , onTouchEnd StartGame
         ]
         <|
-            controls model ++
             [ coin model
             , base model
-            , score model
             , debris model
             , vehicle model
             , vehicle { model | x = model.x - 200 }
@@ -92,36 +94,41 @@ game model =
             ]
 
 gameStyles model =
-    if model.tapped then
-        [ ( "background-color", config.backgroundColor )
-        , ( "margin-top", toString ((100 - config.mobileWidth)/2) ++ "%" )
-        , ( "margin-left", toString ((100 - config.mobileWidth)/2) ++ "%" )
-        ]
-    else
-        [ ( "background-color", config.backgroundColor ) ]
+    [ ( "background-color", config.backgroundColor ) ]
 
-controls : Model -> List (Svg.Svg Msg)
+controls : Model -> Html Msg
 controls model =
-    if model.tapped then
-        [ g [ onTouchStart EngineOn, onTouchEnd EngineOff ]
-            [ circle [ cy "20", cx "20", r "17", fill "#33ff00"] []
-            , text' [ y "24.5", constants.fontFamily, x "14", fontSize "16", fill "white" ] [ text "UP" ] 
+    if model.tapped && model.state /= Paused then
+        div [ onTouchStart TouchOn, onTouchEnd TouchOff, style
+                [ ( "position", "fixed" )
+                , ( "background", "rgba(100,0,0,0.1)" )
+                , ( "width", "100%" )
+                , ( "height", "100%" )
+                , ( "top", "0%")
+                , ( "left", "0%" )
+                ]
             ]
-        , g [ onTouchStart LeftThrustOn, onTouchEnd LeftThrustOff ]
-            [ circle [ cy "20", cx "150", r "11", fill "white" ] []
-            , text' [ y "24.5", constants.fontFamily, x "145.5", fontSize "16", fill "black" ] [ text "<" ]
+            
+            [
             ]
-        , g [ onTouchStart RightThrustOn, onTouchEnd RightThrustOff ]
-            [ circle [ cy "20", cx "180", r "11", fill "white"] []
-            , text' [ y "24.5", constants.fontFamily, x "178", fontSize "16", fill "black" ] [ text ">" ]
-            ]
-        ]
+        --[ g [ onTouchStart EngineOn, onTouchEnd EngineOff ]
+        --    [ circle [ cy "20", cx "20", r "17", fill "#33ff00"] []
+        --    , text' [ y "24.5", constants.fontFamily, x "14", fontSize "16", fill "white" ] [ text "UP" ] 
+        --    ]
+        --, g [ onTouchStart LeftThrustOn, onTouchEnd LeftThrustOff ]
+        --    [ circle [ cy "20", cx "150", r "11", fill "white" ] []
+        --    , text' [ y "24.5", constants.fontFamily, x "145.5", fontSize "16", fill "black" ] [ text "<" ]
+        --    ]
+        --, g [ onTouchStart RightThrustOn, onTouchEnd RightThrustOff ]
+        --    [ circle [ cy "20", cx "180", r "11", fill "white"] []
+        --    , text' [ y "24.5", constants.fontFamily, x "178", fontSize "16", fill "black" ] [ text ">" ]
+        --    ]
     else
-        []
+        div [ style [("display","none")] ] []
 
 
-score : Model -> Svg.Svg a
-score model =
+hud : Model -> List (Svg.Svg a)
+hud model =
     let
         score =
             if model.state == Paused && model.score == 0 then
@@ -129,24 +136,26 @@ score model =
             else
                 model.score
         topY = model.y - config.vehicle.y |> round |> toString
-    in if model.state == Flying || model.score > 0 then
-        g []
-            [ text' [ y "100", x "3", constants.fontFamily, fontSize "13", fill "white" ] [ text <| "SCORE: " ++ toString score ]
-            , text' [ y "96", x "158", constants.fontFamily, fontSize "4", fill "white" ]
-                [ text ("altitude: " ++ topY ++ ", knots: " ++ (model.dx |> abs |> round |> toString))
-                ]
+    in if model.state /= Paused then
+        [ text' [ y <| toString <| viewportMaxY model, x "3", constants.fontFamily, fontSize "12", fill "white" ] [ text <| "SCORE: " ++ toString score ]
+        , text' [ y <| toString <| (viewportMaxY model) - 5, x "146.25", constants.fontFamily, fontSize "4", fill "white" ]
+            [ text <| "altitude: " ++ topY ++ " | knots: " ++ (model.dx |> abs |> round |> toString)
             ]
+        , text' [ y <| toString <| viewportMaxY model, x "154.5", constants.fontFamily, fontSize "4.5", fill "white" ]
+            [ text <| "HIGH SCORE: " ++ toString model.highScore ++ " | " ++ toString model.window.width
+            ]
+        ]
     else
-        g [] []
+        []
 
 
 coin : Model -> Svg.Svg a
 coin model =
     if model.goal == Coin then
         use
-            [ xlinkHref ("graphics/coin.svg#coin")
+            [ xlinkHref ("/graphics/coin.svg#coin")
             , x (model.coin.x - config.coin.x / 2 |> toString)
-            , y (100 - model.coin.y - config.coin.y / 2 |> toString)
+            , y ((viewportMaxY model) - model.coin.y - config.coin.y / 2 |> toString)
             ]
             []
     else
@@ -156,33 +165,29 @@ coin model =
 base : Model -> Svg.Svg Msg
 base model =
     let
-        baseY =
-            100 - config.base.y
-
-        vehicleWidth =
-            config.vehicle.x * cos (degrees model.theta)
+        maxY = viewportMaxY model
+        baseY = maxY - config.base.y
+        vehicleWidth = config.vehicle.x * cos (degrees model.theta)
     in
         g [] <|
             [ line
                 -- ocean
                 [ x1 "0"
-                , y1 "100"
+                , y1 <| toString maxY
                 , x2 "200"
-                , y2 "100"
+                , y2 <| toString maxY
                 , stroke config.base.color
                 , strokeWidth (config.base.y * 2 |> toString)
-                ]
-                []
+                ] []
             , line
                 -- pad
-                [ x1 "50"
+                [ x1 <| toString config.pad.x
                 , y1 (baseY + 0.5 |> toString)
-                , x2 (50 + config.pad.x |> toString)
+                , x2 (config.pad.x + config.pad.width |> toString)
                 , y2 (baseY + 0.5 |> toString)
-                , stroke config.pad.color
+                , stroke <| if model.goal == Pad then config.pad.colorLand else config.pad.color
                 , strokeWidth (config.pad.y |> toString)
-                ]
-                []
+                ] []
             , line
                 -- shadow
                 [ x1 (model.x - vehicleWidth / 2 |> toString)
@@ -192,18 +197,17 @@ base model =
                 , stroke "black"
                 , opacity "0.4"
                 , strokeWidth "1"
-                ]
-                []
-            ]-- ++ (controls model)
+                ] []
+            ] ++ (hud model)
 
 
 debris : Model -> Svg.Svg a
 debris model =
     if model.debris.show then
         use
-            [ xlinkHref ("graphics/debris.svg#debris")
+            [ xlinkHref ("/graphics/debris.svg#debris")
             , x (model.debris.x - config.debris.x / 2 |> toString)
-            , y (100 - model.debris.y - config.debris.y / 2 |> toString)
+            , y ((viewportMaxY model) - model.debris.y - config.debris.y / 2 |> toString)
             ]
             []
     else
@@ -213,14 +217,16 @@ debris model =
 vehicle : Model -> Svg.Svg a
 vehicle model =
     let
+        maxY = viewportMaxY model
+
         rotateY =
-            100 - model.y |> toString
+            maxY - model.y |> toString
 
         leftX =
             model.x - config.vehicle.x / 2 |> toString
 
         topY = 
-            100 - model.y - config.vehicle.y / 2 |> toString
+            maxY - model.y - config.vehicle.y / 2 |> toString
 
         vehicleTransform =
             "rotate(" ++ toString model.theta ++ " " ++ toString model.x ++ " " ++ rotateY ++ ")"
@@ -238,12 +244,36 @@ vehicle model =
                 "none"
     in
         use
-            [ xlinkHref ("graphics/helicopter.svg#" ++ svgId)
+            [ xlinkHref ("/graphics/helicopter.svg#" ++ svgId)
             , x leftX
             , y topY
             , transform vehicleTransform
             ]
             []
+
+miniVehicle : Model -> Html a
+miniVehicle model =
+    let
+        vehicleTransform = "rotate(" ++ toString model.theta ++ "deg)"
+    in
+        if model.state /= Paused then
+            img
+                [ src "graphics/helicopter_white.svg"
+                , style <|
+                    [ ( "position", "absolute" )
+                    , ( "bottom", "5%" )
+                    , ( "right", "30%" )
+                    , ( "width", "7%" )
+                    , ( "transform", vehicleTransform )
+                    , ( "-webkit-transform", vehicleTransform )
+                    , ( "-moz-transform", vehicleTransform )
+                    , ( "-ms-transform", vehicleTransform )
+                    , ( "-o-transform", vehicleTransform )
+                    ]
+                ]
+                []
+        else
+            span [] []
 
 
 title : Model -> Svg.Svg Msg

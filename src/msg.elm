@@ -9,10 +9,14 @@ type Msg
     | KeyUp KeyCode
     | Tick Float
     | StartGame Touch
-    | EngineOn Touch
-    | EngineOff Touch
-    | LeftThrustOn Touch
-    | LeftThrustOff Touch
-    | RightThrustOn Touch
-    | RightThrustOff Touch
+    | TouchOn Touch
+    | TouchOff Touch
+    --| EngineOn Touch
+    --| EngineOff Touch
+    --| LeftThrustOn Touch
+    --| LeftThrustOff Touch
+    --| RightThrustOn Touch
+    --| RightThrustOff Touch
+    | WindowResize (Int,Int)
+    | DummyMsg
 

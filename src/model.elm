@@ -1,7 +1,10 @@
-module Model exposing (Model, State(..), Goal(..), interate, initialModel)
+module Model exposing (Model, State(..), Goal(..), interate, initialModel, viewportMaxY)
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
+import LocalStorage
+import Json.Encode
+import String
 
 
 type State
@@ -41,8 +44,20 @@ type alias Model =
     , previousScore : Int
     , intervalLengthMs : Float
     , tapped : Bool
+    , highScore : Int
+    , window :
+        { width : Int
+        , height : Int
+        }
     }
 
+getHighScore : String -> String -> Int
+getHighScore default key =
+    Result.withDefault 0
+        <| String.toInt
+            <| String.fromList
+                <| String.foldr (\c acc -> if c == '"' then acc else c :: acc) []
+                    <| Maybe.withDefault default <| LocalStorage.get key
 
 initialModel : Model
 initialModel =
@@ -70,6 +85,11 @@ initialModel =
         , show = False
         }
     , tapped = False
+    , highScore = getHighScore "0" "highscore"
+    , window =
+        { width = 0
+        , height = 0
+        }
     }
 
 
@@ -84,17 +104,17 @@ state model =
         model
     else if model.state == Crashed then
         { model | state = Paused }
-    else if model.y > (config.vehicle.y / 2 + config.base.y) then
+    else if model.y > (config.vehicle.y / 2 + config.base.y) then -- Above sea level
         { model | state = Flying }
-    else if model.x < 45 || model.x > 50 + config.pad.x then
+    else if model.x < config.pad.x - 5 || model.x > config.pad.width + config.pad.x then -- Outside the pad
         { model | state = Crashed }
-    else if abs model.dy > 15 then
+    else if abs model.dy > 20 then -- Max vertical speed not to crash
         { model | state = Crashed }
-    else if abs model.dx > 20 then
+    else if abs model.dx > 20 then -- Max horizontal speed not to crash
         { model | state = Crashed }
     else if (model.theta > 30) && (model.theta < 330) then
         { model | state = Crashed }
-    else
+    else -- Landed inside the pad
         { model | state = Landed }
 
 
@@ -120,16 +140,25 @@ coinCollected model =
         True
 
 
+viewportMaxY : Model -> Float
+viewportMaxY model = if model.tapped then 200 else 100
+
 coin : Model -> Model
 coin model =
     if coinCollected model then
-        { model
+        let
+            newScore = model.score + 100
+            newHigh = max newScore <| getHighScore "0" "highscore"
+            -- Dummy line of code to persist high score to LocalStorage
+            a = LocalStorage.set "highscore" <| Json.Encode.string (toString newHigh)
+        in { model
             | coin =
                 { x = floatModulo (model.coin.x + 71) 200
-                , y = clamp (config.base.y + config.coin.y) 100 (floatModulo (model.coin.y + 20) 100)
+                , y = clamp (config.base.y + config.coin.y) (viewportMaxY model) (floatModulo (model.coin.y + 20) (viewportMaxY model))
                 }
-            , score = model.score + 100
+            , score = newScore
             , goal = Pad
+            , highScore = newHigh
         }
     else
         model
@@ -212,7 +241,11 @@ vehicle model =
                         , y = y1
                         , show = True
                         }
+                    , highScore = getHighScore "0" "highscore"
                     , previousScore = model.score
+                    -- Keep current settings stored in model
+                    , tapped = model.tapped
+                    , window = model.window
                 }
 
             _ ->

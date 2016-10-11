@@ -9,3 +9,10 @@
 * `elm-reactor`
 * `open http://localhost:8000/main.elm`
 * `arrow keys`
+
+# TODOs
+
+- HUD (angle, etc)
+
+- Time trial
+- Multiplayer
