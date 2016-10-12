@@ -220,9 +220,9 @@ vehicle model =
             if model.state == Flying then
                 floatModulo (model.theta + dtheta1 * intervalLength) 360
             else if model.theta < 180 then
-                (model.theta + 0) / config.correction.theta
+                ((model.theta + 0) / config.correction.theta) |> floor |> toFloat
             else
-                (model.theta + 360) / config.correction.theta
+                ((model.theta + 360) / config.correction.theta) |> round |> toFloat
     in
         case model.state of
             Paused ->

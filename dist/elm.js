@@ -8459,7 +8459,9 @@ var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 	var y1 = A2(_elm_lang$core$Basics$max, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y, model.y + (dy1 * intervalLength));
 	var x1 = A2(_elm_lang$elm_architecture_tutorial$Utils$floatModulo, model.x + (dx1 * intervalLength), 200);
 	var dtheta1 = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Flying) ? (_elm_lang$core$Native_Utils.eq(model.leftThruster, model.rightThruster) ? model.dtheta : (model.leftThruster ? (model.dtheta - (_elm_lang$elm_architecture_tutorial$Config$config.thrusters * intervalLength)) : (model.rightThruster ? (model.dtheta + (_elm_lang$elm_architecture_tutorial$Config$config.thrusters * intervalLength)) : model.dtheta))) : 0;
-	var theta1 = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Flying) ? A2(_elm_lang$elm_architecture_tutorial$Utils$floatModulo, model.theta + (dtheta1 * intervalLength), 360) : ((_elm_lang$core$Native_Utils.cmp(model.theta, 180) < 0) ? ((model.theta + 0) / _elm_lang$elm_architecture_tutorial$Config$config.correction.theta) : ((model.theta + 360) / _elm_lang$elm_architecture_tutorial$Config$config.correction.theta));
+	var theta1 = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Flying) ? A2(_elm_lang$elm_architecture_tutorial$Utils$floatModulo, model.theta + (dtheta1 * intervalLength), 360) : ((_elm_lang$core$Native_Utils.cmp(model.theta, 180) < 0) ? _elm_lang$core$Basics$toFloat(
+		_elm_lang$core$Basics$floor((model.theta + 0) / _elm_lang$elm_architecture_tutorial$Config$config.correction.theta)) : _elm_lang$core$Basics$toFloat(
+		_elm_lang$core$Basics$round((model.theta + 360) / _elm_lang$elm_architecture_tutorial$Config$config.correction.theta)));
 	var _p1 = model.state;
 	switch (_p1.ctor) {
 		case 'Paused':
