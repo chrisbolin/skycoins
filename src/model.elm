@@ -1,4 +1,4 @@
-module Model exposing (Model, State(..), Goal(..), interate, initialModel)
+port module Model exposing (Model, State(..), Goal(..), interate, initialModel)
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
@@ -38,7 +38,7 @@ type alias Model =
         , y : Float
         , show : Bool
         }
-    , previousScore : Int
+    , highScore : Int
     , intervalLengthMs : Float
     }
 
@@ -58,7 +58,7 @@ initialModel =
     , dy = 0
     , dtheta = 0
     , intervalLengthMs = 0
-    , previousScore = 0
+    , highScore = 0
     , coin =
         { x = 111.5
         , y = 65.6
@@ -71,9 +71,9 @@ initialModel =
     }
 
 
-interate : Model -> Model
+interate : Model -> ( Model, Cmd a )
 interate model =
-    model |> state |> goal |> vehicle |> coin
+    model |> state |> goal |> vehicle |> coin |> highScore |> commands
 
 
 state : Model -> Model
@@ -210,7 +210,9 @@ vehicle model =
                         , y = y1
                         , show = True
                         }
-                    , previousScore = model.score
+                        -- preserve
+                    , state = model.state
+                    , highScore = model.highScore
                 }
 
             _ ->
@@ -227,3 +229,22 @@ vehicle model =
                         , y = 0
                         }
                 }
+
+
+port saveScore : Int -> Cmd msg
+
+
+highScore : Model -> Model
+highScore model =
+    if (model.score > model.highScore) then
+        { model | highScore = model.score }
+    else
+        model
+
+
+commands : Model -> ( Model, Cmd a )
+commands model =
+    if (model.state == Crashed) then
+        ( model, saveScore model.highScore )
+    else
+        ( model, Cmd.none )

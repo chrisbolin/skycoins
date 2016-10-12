@@ -7,3 +7,4 @@ type Msg
     = KeyDown KeyCode
     | KeyUp KeyCode
     | Tick Float
+    | GotSavedScore Int

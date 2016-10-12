@@ -8286,176 +8286,6 @@ var _elm_lang$html$Html_App$beginnerProgram = function (_p1) {
 };
 var _elm_lang$html$Html_App$map = _elm_lang$virtual_dom$VirtualDom$map;
 
-var _elm_lang$keyboard$Keyboard$onSelfMsg = F3(
-	function (router, _p0, state) {
-		var _p1 = _p0;
-		var _p2 = A2(_elm_lang$core$Dict$get, _p1.category, state);
-		if (_p2.ctor === 'Nothing') {
-			return _elm_lang$core$Task$succeed(state);
-		} else {
-			var send = function (tagger) {
-				return A2(
-					_elm_lang$core$Platform$sendToApp,
-					router,
-					tagger(_p1.keyCode));
-			};
-			return A2(
-				_elm_lang$core$Task$andThen,
-				_elm_lang$core$Task$sequence(
-					A2(_elm_lang$core$List$map, send, _p2._0.taggers)),
-				function (_p3) {
-					return _elm_lang$core$Task$succeed(state);
-				});
-		}
-	});
-var _elm_lang$keyboard$Keyboard_ops = _elm_lang$keyboard$Keyboard_ops || {};
-_elm_lang$keyboard$Keyboard_ops['&>'] = F2(
-	function (t1, t2) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			t1,
-			function (_p4) {
-				return t2;
-			});
-	});
-var _elm_lang$keyboard$Keyboard$init = _elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty);
-var _elm_lang$keyboard$Keyboard$categorizeHelpHelp = F2(
-	function (value, maybeValues) {
-		var _p5 = maybeValues;
-		if (_p5.ctor === 'Nothing') {
-			return _elm_lang$core$Maybe$Just(
-				_elm_lang$core$Native_List.fromArray(
-					[value]));
-		} else {
-			return _elm_lang$core$Maybe$Just(
-				A2(_elm_lang$core$List_ops['::'], value, _p5._0));
-		}
-	});
-var _elm_lang$keyboard$Keyboard$categorizeHelp = F2(
-	function (subs, subDict) {
-		categorizeHelp:
-		while (true) {
-			var _p6 = subs;
-			if (_p6.ctor === '[]') {
-				return subDict;
-			} else {
-				var _v4 = _p6._1,
-					_v5 = A3(
-					_elm_lang$core$Dict$update,
-					_p6._0._0,
-					_elm_lang$keyboard$Keyboard$categorizeHelpHelp(_p6._0._1),
-					subDict);
-				subs = _v4;
-				subDict = _v5;
-				continue categorizeHelp;
-			}
-		}
-	});
-var _elm_lang$keyboard$Keyboard$categorize = function (subs) {
-	return A2(_elm_lang$keyboard$Keyboard$categorizeHelp, subs, _elm_lang$core$Dict$empty);
-};
-var _elm_lang$keyboard$Keyboard$keyCode = A2(_elm_lang$core$Json_Decode_ops[':='], 'keyCode', _elm_lang$core$Json_Decode$int);
-var _elm_lang$keyboard$Keyboard$subscription = _elm_lang$core$Native_Platform.leaf('Keyboard');
-var _elm_lang$keyboard$Keyboard$Watcher = F2(
-	function (a, b) {
-		return {taggers: a, pid: b};
-	});
-var _elm_lang$keyboard$Keyboard$Msg = F2(
-	function (a, b) {
-		return {category: a, keyCode: b};
-	});
-var _elm_lang$keyboard$Keyboard$onEffects = F3(
-	function (router, newSubs, oldState) {
-		var rightStep = F3(
-			function (category, taggers, task) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					task,
-					function (state) {
-						return A2(
-							_elm_lang$core$Task$andThen,
-							_elm_lang$core$Process$spawn(
-								A3(
-									_elm_lang$dom$Dom_LowLevel$onDocument,
-									category,
-									_elm_lang$keyboard$Keyboard$keyCode,
-									function (_p7) {
-										return A2(
-											_elm_lang$core$Platform$sendToSelf,
-											router,
-											A2(_elm_lang$keyboard$Keyboard$Msg, category, _p7));
-									})),
-							function (pid) {
-								return _elm_lang$core$Task$succeed(
-									A3(
-										_elm_lang$core$Dict$insert,
-										category,
-										A2(_elm_lang$keyboard$Keyboard$Watcher, taggers, pid),
-										state));
-							});
-					});
-			});
-		var bothStep = F4(
-			function (category, _p8, taggers, task) {
-				var _p9 = _p8;
-				return A2(
-					_elm_lang$core$Task$andThen,
-					task,
-					function (state) {
-						return _elm_lang$core$Task$succeed(
-							A3(
-								_elm_lang$core$Dict$insert,
-								category,
-								A2(_elm_lang$keyboard$Keyboard$Watcher, taggers, _p9.pid),
-								state));
-					});
-			});
-		var leftStep = F3(
-			function (category, _p10, task) {
-				var _p11 = _p10;
-				return A2(
-					_elm_lang$keyboard$Keyboard_ops['&>'],
-					_elm_lang$core$Process$kill(_p11.pid),
-					task);
-			});
-		return A6(
-			_elm_lang$core$Dict$merge,
-			leftStep,
-			bothStep,
-			rightStep,
-			oldState,
-			_elm_lang$keyboard$Keyboard$categorize(newSubs),
-			_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
-	});
-var _elm_lang$keyboard$Keyboard$MySub = F2(
-	function (a, b) {
-		return {ctor: 'MySub', _0: a, _1: b};
-	});
-var _elm_lang$keyboard$Keyboard$presses = function (tagger) {
-	return _elm_lang$keyboard$Keyboard$subscription(
-		A2(_elm_lang$keyboard$Keyboard$MySub, 'keypress', tagger));
-};
-var _elm_lang$keyboard$Keyboard$downs = function (tagger) {
-	return _elm_lang$keyboard$Keyboard$subscription(
-		A2(_elm_lang$keyboard$Keyboard$MySub, 'keydown', tagger));
-};
-var _elm_lang$keyboard$Keyboard$ups = function (tagger) {
-	return _elm_lang$keyboard$Keyboard$subscription(
-		A2(_elm_lang$keyboard$Keyboard$MySub, 'keyup', tagger));
-};
-var _elm_lang$keyboard$Keyboard$subMap = F2(
-	function (func, _p12) {
-		var _p13 = _p12;
-		return A2(
-			_elm_lang$keyboard$Keyboard$MySub,
-			_p13._0,
-			function (_p14) {
-				return func(
-					_p13._1(_p14));
-			});
-	});
-_elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
-
 var _elm_lang$elm_architecture_tutorial$Utils$floatModulo = F2(
 	function (number, modulo) {
 		floatModulo:
@@ -8480,6 +8310,16 @@ var _elm_lang$elm_architecture_tutorial$Utils$floatModulo = F2(
 		}
 	});
 
+var _elm_lang$elm_architecture_tutorial$Model$highScore = function (model) {
+	return (_elm_lang$core$Native_Utils.cmp(model.score, model.highScore) > 0) ? _elm_lang$core$Native_Utils.update(
+		model,
+		{highScore: model.score}) : model;
+};
+var _elm_lang$elm_architecture_tutorial$Model$saveScore = _elm_lang$core$Native_Platform.outgoingPort(
+	'saveScore',
+	function (v) {
+		return v;
+	});
 var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 	return function (b) {
 		return function (c) {
@@ -8496,7 +8336,7 @@ var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 													return function (n) {
 														return function (o) {
 															return function (p) {
-																return {state: a, goal: b, score: c, mainEngine: d, rightThruster: e, leftThruster: f, x: g, y: h, theta: i, dx: j, dy: k, dtheta: l, coin: m, debris: n, previousScore: o, intervalLengthMs: p};
+																return {state: a, goal: b, score: c, mainEngine: d, rightThruster: e, leftThruster: f, x: g, y: h, theta: i, dx: j, dy: k, dtheta: l, coin: m, debris: n, highScore: o, intervalLengthMs: p};
 															};
 														};
 													};
@@ -8516,6 +8356,13 @@ var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 var _elm_lang$elm_architecture_tutorial$Model$Paused = {ctor: 'Paused'};
 var _elm_lang$elm_architecture_tutorial$Model$Landed = {ctor: 'Landed'};
 var _elm_lang$elm_architecture_tutorial$Model$Crashed = {ctor: 'Crashed'};
+var _elm_lang$elm_architecture_tutorial$Model$commands = function (model) {
+	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? {
+		ctor: '_Tuple2',
+		_0: model,
+		_1: _elm_lang$elm_architecture_tutorial$Model$saveScore(model.highScore)
+	} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+};
 var _elm_lang$elm_architecture_tutorial$Model$Flying = {ctor: 'Flying'};
 var _elm_lang$elm_architecture_tutorial$Model$state = function (model) {
 	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? model : (_elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? _elm_lang$core$Native_Utils.update(
@@ -8577,7 +8424,7 @@ var _elm_lang$elm_architecture_tutorial$Model$initialModel = {
 	dy: 0,
 	dtheta: 0,
 	intervalLengthMs: 0,
-	previousScore: 0,
+	highScore: 0,
 	coin: {x: 111.5, y: 65.6},
 	debris: {x: 0, y: 0, show: false}
 };
@@ -8601,7 +8448,8 @@ var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 				_elm_lang$elm_architecture_tutorial$Model$initialModel,
 				{
 					debris: {x: x1, y: y1, show: true},
-					previousScore: model.score
+					state: model.state,
+					highScore: model.highScore
 				});
 		default:
 			return _elm_lang$core$Native_Utils.update(
@@ -8627,20 +8475,12 @@ var _elm_lang$elm_architecture_tutorial$Model$goal = function (model) {
 		{goal: _elm_lang$elm_architecture_tutorial$Model$Coin}) : model);
 };
 var _elm_lang$elm_architecture_tutorial$Model$interate = function (model) {
-	return _elm_lang$elm_architecture_tutorial$Model$coin(
-		_elm_lang$elm_architecture_tutorial$Model$vehicle(
-			_elm_lang$elm_architecture_tutorial$Model$goal(
-				_elm_lang$elm_architecture_tutorial$Model$state(model))));
-};
-
-var _elm_lang$elm_architecture_tutorial$Msg$Tick = function (a) {
-	return {ctor: 'Tick', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$Msg$KeyUp = function (a) {
-	return {ctor: 'KeyUp', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$Msg$KeyDown = function (a) {
-	return {ctor: 'KeyDown', _0: a};
+	return _elm_lang$elm_architecture_tutorial$Model$commands(
+		_elm_lang$elm_architecture_tutorial$Model$highScore(
+			_elm_lang$elm_architecture_tutorial$Model$coin(
+				_elm_lang$elm_architecture_tutorial$Model$vehicle(
+					_elm_lang$elm_architecture_tutorial$Model$goal(
+						_elm_lang$elm_architecture_tutorial$Model$state(model))))));
 };
 
 var _elm_lang$html$Html_Attributes$attribute = _elm_lang$virtual_dom$VirtualDom$attribute;
@@ -9343,6 +9183,189 @@ var _elm_lang$svg$Svg_Attributes$accumulate = _elm_lang$virtual_dom$VirtualDom$a
 var _elm_lang$svg$Svg_Attributes$accelerate = _elm_lang$virtual_dom$VirtualDom$attribute('accelerate');
 var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom$attribute('accent-height');
 
+var _elm_lang$keyboard$Keyboard$onSelfMsg = F3(
+	function (router, _p0, state) {
+		var _p1 = _p0;
+		var _p2 = A2(_elm_lang$core$Dict$get, _p1.category, state);
+		if (_p2.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var send = function (tagger) {
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					tagger(_p1.keyCode));
+			};
+			return A2(
+				_elm_lang$core$Task$andThen,
+				_elm_lang$core$Task$sequence(
+					A2(_elm_lang$core$List$map, send, _p2._0.taggers)),
+				function (_p3) {
+					return _elm_lang$core$Task$succeed(state);
+				});
+		}
+	});
+var _elm_lang$keyboard$Keyboard_ops = _elm_lang$keyboard$Keyboard_ops || {};
+_elm_lang$keyboard$Keyboard_ops['&>'] = F2(
+	function (t1, t2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			t1,
+			function (_p4) {
+				return t2;
+			});
+	});
+var _elm_lang$keyboard$Keyboard$init = _elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty);
+var _elm_lang$keyboard$Keyboard$categorizeHelpHelp = F2(
+	function (value, maybeValues) {
+		var _p5 = maybeValues;
+		if (_p5.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Just(
+				_elm_lang$core$Native_List.fromArray(
+					[value]));
+		} else {
+			return _elm_lang$core$Maybe$Just(
+				A2(_elm_lang$core$List_ops['::'], value, _p5._0));
+		}
+	});
+var _elm_lang$keyboard$Keyboard$categorizeHelp = F2(
+	function (subs, subDict) {
+		categorizeHelp:
+		while (true) {
+			var _p6 = subs;
+			if (_p6.ctor === '[]') {
+				return subDict;
+			} else {
+				var _v4 = _p6._1,
+					_v5 = A3(
+					_elm_lang$core$Dict$update,
+					_p6._0._0,
+					_elm_lang$keyboard$Keyboard$categorizeHelpHelp(_p6._0._1),
+					subDict);
+				subs = _v4;
+				subDict = _v5;
+				continue categorizeHelp;
+			}
+		}
+	});
+var _elm_lang$keyboard$Keyboard$categorize = function (subs) {
+	return A2(_elm_lang$keyboard$Keyboard$categorizeHelp, subs, _elm_lang$core$Dict$empty);
+};
+var _elm_lang$keyboard$Keyboard$keyCode = A2(_elm_lang$core$Json_Decode_ops[':='], 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$keyboard$Keyboard$subscription = _elm_lang$core$Native_Platform.leaf('Keyboard');
+var _elm_lang$keyboard$Keyboard$Watcher = F2(
+	function (a, b) {
+		return {taggers: a, pid: b};
+	});
+var _elm_lang$keyboard$Keyboard$Msg = F2(
+	function (a, b) {
+		return {category: a, keyCode: b};
+	});
+var _elm_lang$keyboard$Keyboard$onEffects = F3(
+	function (router, newSubs, oldState) {
+		var rightStep = F3(
+			function (category, taggers, task) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					task,
+					function (state) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							_elm_lang$core$Process$spawn(
+								A3(
+									_elm_lang$dom$Dom_LowLevel$onDocument,
+									category,
+									_elm_lang$keyboard$Keyboard$keyCode,
+									function (_p7) {
+										return A2(
+											_elm_lang$core$Platform$sendToSelf,
+											router,
+											A2(_elm_lang$keyboard$Keyboard$Msg, category, _p7));
+									})),
+							function (pid) {
+								return _elm_lang$core$Task$succeed(
+									A3(
+										_elm_lang$core$Dict$insert,
+										category,
+										A2(_elm_lang$keyboard$Keyboard$Watcher, taggers, pid),
+										state));
+							});
+					});
+			});
+		var bothStep = F4(
+			function (category, _p8, taggers, task) {
+				var _p9 = _p8;
+				return A2(
+					_elm_lang$core$Task$andThen,
+					task,
+					function (state) {
+						return _elm_lang$core$Task$succeed(
+							A3(
+								_elm_lang$core$Dict$insert,
+								category,
+								A2(_elm_lang$keyboard$Keyboard$Watcher, taggers, _p9.pid),
+								state));
+					});
+			});
+		var leftStep = F3(
+			function (category, _p10, task) {
+				var _p11 = _p10;
+				return A2(
+					_elm_lang$keyboard$Keyboard_ops['&>'],
+					_elm_lang$core$Process$kill(_p11.pid),
+					task);
+			});
+		return A6(
+			_elm_lang$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			oldState,
+			_elm_lang$keyboard$Keyboard$categorize(newSubs),
+			_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
+	});
+var _elm_lang$keyboard$Keyboard$MySub = F2(
+	function (a, b) {
+		return {ctor: 'MySub', _0: a, _1: b};
+	});
+var _elm_lang$keyboard$Keyboard$presses = function (tagger) {
+	return _elm_lang$keyboard$Keyboard$subscription(
+		A2(_elm_lang$keyboard$Keyboard$MySub, 'keypress', tagger));
+};
+var _elm_lang$keyboard$Keyboard$downs = function (tagger) {
+	return _elm_lang$keyboard$Keyboard$subscription(
+		A2(_elm_lang$keyboard$Keyboard$MySub, 'keydown', tagger));
+};
+var _elm_lang$keyboard$Keyboard$ups = function (tagger) {
+	return _elm_lang$keyboard$Keyboard$subscription(
+		A2(_elm_lang$keyboard$Keyboard$MySub, 'keyup', tagger));
+};
+var _elm_lang$keyboard$Keyboard$subMap = F2(
+	function (func, _p12) {
+		var _p13 = _p12;
+		return A2(
+			_elm_lang$keyboard$Keyboard$MySub,
+			_p13._0,
+			function (_p14) {
+				return func(
+					_p13._1(_p14));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
+
+var _elm_lang$elm_architecture_tutorial$Msg$GotSavedScore = function (a) {
+	return {ctor: 'GotSavedScore', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$Msg$Tick = function (a) {
+	return {ctor: 'Tick', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$Msg$KeyUp = function (a) {
+	return {ctor: 'KeyUp', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$Msg$KeyDown = function (a) {
+	return {ctor: 'KeyDown', _0: a};
+};
+
 var _elm_lang$elm_architecture_tutorial$View$vehicle = function (model) {
 	var svgId = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? 'none' : ((model.mainEngine && (model.rightThruster || model.leftThruster)) ? 'all' : (model.mainEngine ? 'main' : ((model.rightThruster || model.leftThruster) ? 'turn' : 'none')));
 	var topY = _elm_lang$core$Basics$toString((100 - model.y) - (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2));
@@ -9471,7 +9494,6 @@ var _elm_lang$elm_architecture_tutorial$View$constants = {
 	red: '#dd5555'
 };
 var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
-	var score = (_elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) && _elm_lang$core$Native_Utils.eq(model.score, 0)) ? model.previousScore : model.score;
 	return A2(
 		_elm_lang$svg$Svg$g,
 		_elm_lang$core$Native_List.fromArray(
@@ -9482,15 +9504,32 @@ var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 				_elm_lang$svg$Svg$text$,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$svg$Svg_Attributes$y('13'),
-						_elm_lang$svg$Svg_Attributes$x('3'),
+						_elm_lang$svg$Svg_Attributes$y('9'),
+						_elm_lang$svg$Svg_Attributes$x('2.5'),
 						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
 						_elm_lang$svg$Svg_Attributes$fontSize('14')
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$svg$Svg$text(
-						_elm_lang$core$Basics$toString(score))
+						_elm_lang$core$Basics$toString(model.score))
+					])),
+				A2(
+				_elm_lang$svg$Svg$text$,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg_Attributes$y('16'),
+						_elm_lang$svg$Svg_Attributes$x('3'),
+						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontSize('7')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text(
+						(_elm_lang$core$Native_Utils.cmp(model.highScore, 0) > 0) ? A2(
+							_elm_lang$core$Basics_ops['++'],
+							'Best ',
+							_elm_lang$core$Basics$toString(model.highScore)) : '')
 					])),
 				A2(
 				_elm_lang$svg$Svg$text$,
@@ -9681,12 +9720,16 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 		var _p0 = msg;
 		switch (_p0.ctor) {
 			case 'Tick':
+				return _elm_lang$elm_architecture_tutorial$Model$interate(
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{intervalLengthMs: _p0._0}));
+			case 'GotSavedScore':
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$elm_architecture_tutorial$Model$interate(
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{intervalLengthMs: _p0._0})),
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{highScore: _p0._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'KeyDown':
@@ -9764,13 +9807,15 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 		}
 	});
 
+var _elm_lang$elm_architecture_tutorial$Subscriptions$getSavedScore = _elm_lang$core$Native_Platform.incomingPort('getSavedScore', _elm_lang$core$Json_Decode$int);
 var _elm_lang$elm_architecture_tutorial$Subscriptions$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$batch(
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_elm_lang$keyboard$Keyboard$downs(_elm_lang$elm_architecture_tutorial$Msg$KeyDown),
 				_elm_lang$keyboard$Keyboard$ups(_elm_lang$elm_architecture_tutorial$Msg$KeyUp),
-				_elm_lang$animation_frame$AnimationFrame$diffs(_elm_lang$elm_architecture_tutorial$Msg$Tick)
+				_elm_lang$animation_frame$AnimationFrame$diffs(_elm_lang$elm_architecture_tutorial$Msg$Tick),
+				_elm_lang$elm_architecture_tutorial$Subscriptions$getSavedScore(_elm_lang$elm_architecture_tutorial$Msg$GotSavedScore)
 			]));
 };
 

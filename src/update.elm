@@ -3,14 +3,17 @@ module Update exposing (update)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Model exposing (Model, State(Paused, Flying))
-import Msg exposing (Msg(Tick, KeyUp, KeyDown))
+import Msg exposing (Msg(Tick, KeyUp, KeyDown, GotSavedScore))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick intervalLengthMs ->
-            ( Model.interate { model | intervalLengthMs = intervalLengthMs }, Cmd.none )
+            Model.interate { model | intervalLengthMs = intervalLengthMs }
+
+        GotSavedScore highScore ->
+            ( { model | highScore = highScore }, Cmd.none )
 
         KeyDown code ->
             case code of

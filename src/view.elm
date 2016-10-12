@@ -79,19 +79,20 @@ game model =
 
 score : Model -> Svg.Svg a
 score model =
-    let
-        score =
-            if model.state == Paused && model.score == 0 then
-                model.previousScore
-            else
-                model.score
-    in
-        g []
-            [ text' [ y "13", x "3", constants.fontFamily, fontSize "14" ] [ text (toString score) ]
-            , text' [ y "5", x "158", constants.fontFamily, fontSize "4", fill "#ddd" ]
-                [ text ("ground speed, knots: " ++ (model.dx |> abs |> round |> toString))
-                ]
+    g []
+        [ text' [ y "9", x "2.5", constants.fontFamily, fontSize "14" ] [ text (toString model.score) ]
+        , text' [ y "16", x "3", constants.fontFamily, fontSize "7" ]
+            [ text
+                (if model.highScore > 0 then
+                    ("Best " ++ toString model.highScore)
+                 else
+                    ""
+                )
             ]
+        , text' [ y "5", x "158", constants.fontFamily, fontSize "4", fill "#ddd" ]
+            [ text ("ground speed, knots: " ++ (model.dx |> abs |> round |> toString))
+            ]
+        ]
 
 
 coin : Model -> Svg.Svg a
