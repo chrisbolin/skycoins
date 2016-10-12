@@ -8310,15 +8310,14 @@ var _elm_lang$elm_architecture_tutorial$Utils$floatModulo = F2(
 		}
 	});
 
-var _elm_lang$elm_architecture_tutorial$Model$highScore = function (model) {
-	return (_elm_lang$core$Native_Utils.cmp(model.score, model.highScore) > 0) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{highScore: model.score}) : model;
-};
 var _elm_lang$elm_architecture_tutorial$Model$saveScore = _elm_lang$core$Native_Platform.outgoingPort(
 	'saveScore',
 	function (v) {
 		return v;
+	});
+var _elm_lang$elm_architecture_tutorial$Model$LeaderboardEntry = F2(
+	function (a, b) {
+		return {score: a, username: b};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 	return function (b) {
@@ -8336,7 +8335,11 @@ var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 													return function (n) {
 														return function (o) {
 															return function (p) {
-																return {state: a, goal: b, score: c, mainEngine: d, rightThruster: e, leftThruster: f, x: g, y: h, theta: i, dx: j, dy: k, dtheta: l, coin: m, debris: n, highScore: o, intervalLengthMs: p};
+																return function (q) {
+																	return function (r) {
+																		return {state: a, view: b, goal: c, score: d, mainEngine: e, rightThruster: f, leftThruster: g, x: h, y: i, theta: j, dx: k, dy: l, dtheta: m, coin: n, debris: o, highScore: p, intervalLengthMs: q, leaderboard: r};
+																	};
+																};
 															};
 														};
 													};
@@ -8353,37 +8356,52 @@ var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 		};
 	};
 };
+var _elm_lang$elm_architecture_tutorial$Model$Leaderboard = {ctor: 'Leaderboard'};
+var _elm_lang$elm_architecture_tutorial$Model$Game = {ctor: 'Game'};
 var _elm_lang$elm_architecture_tutorial$Model$Paused = {ctor: 'Paused'};
 var _elm_lang$elm_architecture_tutorial$Model$Landed = {ctor: 'Landed'};
 var _elm_lang$elm_architecture_tutorial$Model$Crashed = {ctor: 'Crashed'};
-var _elm_lang$elm_architecture_tutorial$Model$commands = function (model) {
-	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? {
+var _elm_lang$elm_architecture_tutorial$Model$highScore = function (model) {
+	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? ((_elm_lang$core$Native_Utils.cmp(model.score, model.highScore) > 0) ? {
 		ctor: '_Tuple2',
-		_0: model,
-		_1: _elm_lang$elm_architecture_tutorial$Model$saveScore(model.highScore)
-	} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		_0: _elm_lang$core$Native_Utils.update(
+			model,
+			{highScore: model.score, score: 0, state: _elm_lang$elm_architecture_tutorial$Model$Paused, view: _elm_lang$elm_architecture_tutorial$Model$Leaderboard}),
+		_1: _elm_lang$elm_architecture_tutorial$Model$saveScore(model.score)
+	} : {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			model,
+			{score: 0}),
+		_1: _elm_lang$core$Platform_Cmd$none
+	}) : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 };
 var _elm_lang$elm_architecture_tutorial$Model$Flying = {ctor: 'Flying'};
 var _elm_lang$elm_architecture_tutorial$Model$state = function (model) {
-	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? model : (_elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Paused}) : ((_elm_lang$core$Native_Utils.cmp(model.y, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y) > 0) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Flying}) : (((_elm_lang$core$Native_Utils.cmp(model.x, 45) < 0) || (_elm_lang$core$Native_Utils.cmp(model.x, 50 + _elm_lang$elm_architecture_tutorial$Config$config.pad.x) > 0)) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : ((_elm_lang$core$Native_Utils.cmp(
-		_elm_lang$core$Basics$abs(model.dy),
-		15) > 0) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : ((_elm_lang$core$Native_Utils.cmp(
-		_elm_lang$core$Basics$abs(model.dx),
-		20) > 0) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : (((_elm_lang$core$Native_Utils.cmp(model.theta, 30) > 0) && (_elm_lang$core$Native_Utils.cmp(model.theta, 330) < 0)) ? _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : _elm_lang$core$Native_Utils.update(
-		model,
-		{state: _elm_lang$elm_architecture_tutorial$Model$Landed})))))));
+	var _p0 = model.state;
+	if (_p0.ctor === 'Paused') {
+		return model;
+	} else {
+		return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Paused}) : ((_elm_lang$core$Native_Utils.cmp(model.y, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y) > 0) ? _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Flying}) : (((_elm_lang$core$Native_Utils.cmp(model.x, 45) < 0) || (_elm_lang$core$Native_Utils.cmp(model.x, 50 + _elm_lang$elm_architecture_tutorial$Config$config.pad.x) > 0)) ? _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : ((_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$abs(model.dy),
+			15) > 0) ? _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : ((_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$abs(model.dx),
+			20) > 0) ? _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : (((_elm_lang$core$Native_Utils.cmp(model.theta, 30) > 0) && (_elm_lang$core$Native_Utils.cmp(model.theta, 330) < 0)) ? _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Crashed}) : _elm_lang$core$Native_Utils.update(
+			model,
+			{state: _elm_lang$elm_architecture_tutorial$Model$Landed}))))));
+	}
 };
 var _elm_lang$elm_architecture_tutorial$Model$Pad = {ctor: 'Pad'};
 var _elm_lang$elm_architecture_tutorial$Model$coinCollected = function (model) {
@@ -8412,6 +8430,7 @@ var _elm_lang$elm_architecture_tutorial$Model$coin = function (model) {
 var _elm_lang$elm_architecture_tutorial$Model$Coin = {ctor: 'Coin'};
 var _elm_lang$elm_architecture_tutorial$Model$initialModel = {
 	state: _elm_lang$elm_architecture_tutorial$Model$Paused,
+	view: _elm_lang$elm_architecture_tutorial$Model$Game,
 	goal: _elm_lang$elm_architecture_tutorial$Model$Coin,
 	score: 0,
 	mainEngine: false,
@@ -8426,7 +8445,9 @@ var _elm_lang$elm_architecture_tutorial$Model$initialModel = {
 	intervalLengthMs: 0,
 	highScore: 0,
 	coin: {x: 111.5, y: 65.6},
-	debris: {x: 0, y: 0, show: false}
+	debris: {x: 0, y: 0, show: false},
+	leaderboard: _elm_lang$core$Native_List.fromArray(
+		[])
 };
 var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 	var thetaRad = _elm_lang$core$Basics$degrees(model.theta);
@@ -8439,8 +8460,8 @@ var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 	var x1 = A2(_elm_lang$elm_architecture_tutorial$Utils$floatModulo, model.x + (dx1 * intervalLength), 200);
 	var dtheta1 = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Flying) ? (_elm_lang$core$Native_Utils.eq(model.leftThruster, model.rightThruster) ? model.dtheta : (model.leftThruster ? (model.dtheta - (_elm_lang$elm_architecture_tutorial$Config$config.thrusters * intervalLength)) : (model.rightThruster ? (model.dtheta + (_elm_lang$elm_architecture_tutorial$Config$config.thrusters * intervalLength)) : model.dtheta))) : 0;
 	var theta1 = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Flying) ? A2(_elm_lang$elm_architecture_tutorial$Utils$floatModulo, model.theta + (dtheta1 * intervalLength), 360) : ((_elm_lang$core$Native_Utils.cmp(model.theta, 180) < 0) ? ((model.theta + 0) / _elm_lang$elm_architecture_tutorial$Config$config.correction.theta) : ((model.theta + 360) / _elm_lang$elm_architecture_tutorial$Config$config.correction.theta));
-	var _p0 = model.state;
-	switch (_p0.ctor) {
+	var _p1 = model.state;
+	switch (_p1.ctor) {
 		case 'Paused':
 			return model;
 		case 'Crashed':
@@ -8449,7 +8470,9 @@ var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 				{
 					debris: {x: x1, y: y1, show: true},
 					state: model.state,
-					highScore: model.highScore
+					highScore: model.highScore,
+					score: model.score,
+					leaderboard: model.leaderboard
 				});
 		default:
 			return _elm_lang$core$Native_Utils.update(
@@ -8475,12 +8498,11 @@ var _elm_lang$elm_architecture_tutorial$Model$goal = function (model) {
 		{goal: _elm_lang$elm_architecture_tutorial$Model$Coin}) : model);
 };
 var _elm_lang$elm_architecture_tutorial$Model$interate = function (model) {
-	return _elm_lang$elm_architecture_tutorial$Model$commands(
-		_elm_lang$elm_architecture_tutorial$Model$highScore(
-			_elm_lang$elm_architecture_tutorial$Model$coin(
-				_elm_lang$elm_architecture_tutorial$Model$vehicle(
-					_elm_lang$elm_architecture_tutorial$Model$goal(
-						_elm_lang$elm_architecture_tutorial$Model$state(model))))));
+	return _elm_lang$elm_architecture_tutorial$Model$highScore(
+		_elm_lang$elm_architecture_tutorial$Model$coin(
+			_elm_lang$elm_architecture_tutorial$Model$vehicle(
+				_elm_lang$elm_architecture_tutorial$Model$goal(
+					_elm_lang$elm_architecture_tutorial$Model$state(model)))));
 };
 
 var _elm_lang$html$Html_Attributes$attribute = _elm_lang$virtual_dom$VirtualDom$attribute;
@@ -9353,6 +9375,9 @@ var _elm_lang$keyboard$Keyboard$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
 
+var _elm_lang$elm_architecture_tutorial$Msg$GotLeaderboard = function (a) {
+	return {ctor: 'GotLeaderboard', _0: a};
+};
 var _elm_lang$elm_architecture_tutorial$Msg$GotSavedScore = function (a) {
 	return {ctor: 'GotSavedScore', _0: a};
 };
@@ -9366,6 +9391,62 @@ var _elm_lang$elm_architecture_tutorial$Msg$KeyDown = function (a) {
 	return {ctor: 'KeyDown', _0: a};
 };
 
+var _elm_lang$elm_architecture_tutorial$View$leaderboardRow = function (entry) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('row')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(entry.username)
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('score')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(entry.score))
+					]))
+			]));
+};
+var _elm_lang$elm_architecture_tutorial$View$leaderboard = function (model) {
+	return _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$Leaderboard) ? A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('leaderboard')
+			]),
+		A2(
+			_elm_lang$core$List_ops['::'],
+			A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('header row')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('leaderboard')
+					])),
+			A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$View$leaderboardRow, model.leaderboard))) : A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[]));
+};
 var _elm_lang$elm_architecture_tutorial$View$vehicle = function (model) {
 	var svgId = _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? 'none' : ((model.mainEngine && (model.rightThruster || model.leftThruster)) ? 'all' : (model.mainEngine ? 'main' : ((model.rightThruster || model.leftThruster) ? 'turn' : 'none')));
 	var topY = _elm_lang$core$Basics$toString((100 - model.y) - (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2));
@@ -9489,10 +9570,7 @@ var _elm_lang$elm_architecture_tutorial$View$coin = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[])) : _elm_lang$svg$Svg$text('');
 };
-var _elm_lang$elm_architecture_tutorial$View$constants = {
-	fontFamily: _elm_lang$svg$Svg_Attributes$fontFamily('VT323, monospace'),
-	red: '#dd5555'
-};
+var _elm_lang$elm_architecture_tutorial$View$constants = {font: 'VT323, monospace', red: '#dd5555'};
 var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 	return A2(
 		_elm_lang$svg$Svg$g,
@@ -9506,7 +9584,7 @@ var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('9'),
 						_elm_lang$svg$Svg_Attributes$x('2.5'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font),
 						_elm_lang$svg$Svg_Attributes$fontSize('14')
 					]),
 				_elm_lang$core$Native_List.fromArray(
@@ -9520,7 +9598,7 @@ var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('16'),
 						_elm_lang$svg$Svg_Attributes$x('3'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font),
 						_elm_lang$svg$Svg_Attributes$fontSize('7')
 					]),
 				_elm_lang$core$Native_List.fromArray(
@@ -9537,7 +9615,7 @@ var _elm_lang$elm_architecture_tutorial$View$score = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('5'),
 						_elm_lang$svg$Svg_Attributes$x('158'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font),
 						_elm_lang$svg$Svg_Attributes$fontSize('4'),
 						_elm_lang$svg$Svg_Attributes$fill('#ddd')
 					]),
@@ -9568,7 +9646,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$svg$Svg_Attributes$y('50'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font),
 						_elm_lang$svg$Svg_Attributes$fontSize('59')
 					]),
 				_elm_lang$core$Native_List.fromArray(
@@ -9581,7 +9659,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('62'),
 						_elm_lang$svg$Svg_Attributes$x('2'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9593,7 +9671,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('70'),
 						_elm_lang$svg$Svg_Attributes$x('2.9'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9605,7 +9683,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('78'),
 						_elm_lang$svg$Svg_Attributes$x('2.9'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9617,7 +9695,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('88'),
 						_elm_lang$svg$Svg_Attributes$x('2.9'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font),
 						_elm_lang$svg$Svg_Attributes$fill('black')
 					]),
 				_elm_lang$core$Native_List.fromArray(
@@ -9630,7 +9708,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = function (model) {
 					[
 						_elm_lang$svg$Svg_Attributes$y('92'),
 						_elm_lang$svg$Svg_Attributes$x('166'),
-						_elm_lang$elm_architecture_tutorial$View$constants.fontFamily,
+						_elm_lang$svg$Svg_Attributes$fontFamily(_elm_lang$elm_architecture_tutorial$View$constants.font),
 						_elm_lang$svg$Svg_Attributes$fontSize('4'),
 						_elm_lang$svg$Svg_Attributes$fill('black')
 					]),
@@ -9692,7 +9770,8 @@ var _elm_lang$elm_architecture_tutorial$View$view = function (model) {
 			[
 				{ctor: '_Tuple2', _0: 'padding', _1: '0px'},
 				{ctor: '_Tuple2', _0: 'height', _1: '100vh'},
-				{ctor: '_Tuple2', _0: 'background-color', _1: _elm_lang$elm_architecture_tutorial$Config$config.base.color}
+				{ctor: '_Tuple2', _0: 'background-color', _1: _elm_lang$elm_architecture_tutorial$Config$config.base.color},
+				{ctor: '_Tuple2', _0: 'font-family', _1: 'VT323, monospace'}
 			]));
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9701,7 +9780,8 @@ var _elm_lang$elm_architecture_tutorial$View$view = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				fontImport,
-				_elm_lang$elm_architecture_tutorial$View$game(model)
+				_elm_lang$elm_architecture_tutorial$View$game(model),
+				_elm_lang$elm_architecture_tutorial$View$leaderboard(model)
 			]));
 };
 
@@ -9732,6 +9812,22 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 						{highScore: _p0._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'GotLeaderboard':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							leaderboard: _elm_lang$core$List$reverse(
+								A2(
+									_elm_lang$core$List$sortBy,
+									function (_) {
+										return _.score;
+									},
+									_p0._0))
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'KeyDown':
 				var _p1 = _p0._0;
 				switch (_p1) {
@@ -9741,7 +9837,8 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
 								{
-									state: _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? _elm_lang$elm_architecture_tutorial$Model$Flying : _elm_lang$elm_architecture_tutorial$Model$Paused
+									state: _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? _elm_lang$elm_architecture_tutorial$Model$Flying : _elm_lang$elm_architecture_tutorial$Model$Paused,
+									view: _elm_lang$elm_architecture_tutorial$Model$Game
 								}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
@@ -9767,6 +9864,17 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
 								{rightThruster: true}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					case 76:
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									view: _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$Leaderboard) ? _elm_lang$elm_architecture_tutorial$Model$Game : _elm_lang$elm_architecture_tutorial$Model$Leaderboard,
+									state: _elm_lang$elm_architecture_tutorial$Model$Paused
+								}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					default:
@@ -9808,6 +9916,21 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 	});
 
 var _elm_lang$elm_architecture_tutorial$Subscriptions$getSavedScore = _elm_lang$core$Native_Platform.incomingPort('getSavedScore', _elm_lang$core$Json_Decode$int);
+var _elm_lang$elm_architecture_tutorial$Subscriptions$getLeaderboard = _elm_lang$core$Native_Platform.incomingPort(
+	'getLeaderboard',
+	_elm_lang$core$Json_Decode$list(
+		A2(
+			_elm_lang$core$Json_Decode$andThen,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'score', _elm_lang$core$Json_Decode$int),
+			function (score) {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'username', _elm_lang$core$Json_Decode$string),
+					function (username) {
+						return _elm_lang$core$Json_Decode$succeed(
+							{score: score, username: username});
+					});
+			})));
 var _elm_lang$elm_architecture_tutorial$Subscriptions$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$batch(
 		_elm_lang$core$Native_List.fromArray(
@@ -9815,7 +9938,8 @@ var _elm_lang$elm_architecture_tutorial$Subscriptions$subscriptions = function (
 				_elm_lang$keyboard$Keyboard$downs(_elm_lang$elm_architecture_tutorial$Msg$KeyDown),
 				_elm_lang$keyboard$Keyboard$ups(_elm_lang$elm_architecture_tutorial$Msg$KeyUp),
 				_elm_lang$animation_frame$AnimationFrame$diffs(_elm_lang$elm_architecture_tutorial$Msg$Tick),
-				_elm_lang$elm_architecture_tutorial$Subscriptions$getSavedScore(_elm_lang$elm_architecture_tutorial$Msg$GotSavedScore)
+				_elm_lang$elm_architecture_tutorial$Subscriptions$getSavedScore(_elm_lang$elm_architecture_tutorial$Msg$GotSavedScore),
+				_elm_lang$elm_architecture_tutorial$Subscriptions$getLeaderboard(_elm_lang$elm_architecture_tutorial$Msg$GotLeaderboard)
 			]));
 };
 

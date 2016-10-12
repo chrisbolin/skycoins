@@ -1,7 +1,12 @@
-port module Model exposing (Model, State(..), Goal(..), interate, initialModel)
+port module Model exposing (Model, Leaderboard, LeaderboardEntry, State(..), Goal(..), View(..), interate, initialModel)
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
+
+
+type View
+    = Game
+    | Leaderboard
 
 
 type State
@@ -16,8 +21,19 @@ type Goal
     | Pad
 
 
+type alias LeaderboardEntry =
+    { score : Int
+    , username : String
+    }
+
+
+type alias Leaderboard =
+    List LeaderboardEntry
+
+
 type alias Model =
     { state : State
+    , view : View
     , goal : Goal
     , score : Int
     , mainEngine : Bool
@@ -40,12 +56,17 @@ type alias Model =
         }
     , highScore : Int
     , intervalLengthMs : Float
+    , leaderboard : Leaderboard
     }
+
+
+port saveScore : Int -> Cmd msg
 
 
 initialModel : Model
 initialModel =
     { state = Paused
+    , view = Game
     , goal = Coin
     , score = 0
     , mainEngine = False
@@ -68,32 +89,36 @@ initialModel =
         , y = 0
         , show = False
         }
+    , leaderboard = []
     }
 
 
 interate : Model -> ( Model, Cmd a )
 interate model =
-    model |> state |> goal |> vehicle |> coin |> highScore |> commands
+    model |> state |> goal |> vehicle |> coin |> highScore
 
 
 state : Model -> Model
 state model =
-    if model.state == Paused then
-        model
-    else if model.state == Crashed then
-        { model | state = Paused }
-    else if model.y > (config.vehicle.y / 2 + config.base.y) then
-        { model | state = Flying }
-    else if model.x < 45 || model.x > 50 + config.pad.x then
-        { model | state = Crashed }
-    else if abs model.dy > 15 then
-        { model | state = Crashed }
-    else if abs model.dx > 20 then
-        { model | state = Crashed }
-    else if (model.theta > 30) && (model.theta < 330) then
-        { model | state = Crashed }
-    else
-        { model | state = Landed }
+    case model.state of
+        Paused ->
+            model
+
+        _ ->
+            if model.state == Crashed then
+                { model | state = Paused }
+            else if model.y > (config.vehicle.y / 2 + config.base.y) then
+                { model | state = Flying }
+            else if model.x < 45 || model.x > 50 + config.pad.x then
+                { model | state = Crashed }
+            else if abs model.dy > 15 then
+                { model | state = Crashed }
+            else if abs model.dx > 20 then
+                { model | state = Crashed }
+            else if (model.theta > 30) && (model.theta < 330) then
+                { model | state = Crashed }
+            else
+                { model | state = Landed }
 
 
 goal : Model -> Model
@@ -213,6 +238,8 @@ vehicle model =
                         -- preserve
                     , state = model.state
                     , highScore = model.highScore
+                    , score = model.score
+                    , leaderboard = model.leaderboard
                 }
 
             _ ->
@@ -231,20 +258,12 @@ vehicle model =
                 }
 
 
-port saveScore : Int -> Cmd msg
-
-
-highScore : Model -> Model
+highScore : Model -> ( Model, Cmd a )
 highScore model =
-    if (model.score > model.highScore) then
-        { model | highScore = model.score }
-    else
-        model
-
-
-commands : Model -> ( Model, Cmd a )
-commands model =
     if (model.state == Crashed) then
-        ( model, saveScore model.highScore )
+        if (model.score > model.highScore) then
+            ( { model | highScore = model.score, score = 0, state = Paused, view = Leaderboard }, saveScore model.score )
+        else
+            ( { model | score = 0 }, Cmd.none )
     else
         ( model, Cmd.none )

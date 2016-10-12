@@ -1,9 +1,10 @@
 module Update exposing (update)
 
+import List exposing (sortBy, reverse)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Model exposing (Model, State(Paused, Flying))
-import Msg exposing (Msg(Tick, KeyUp, KeyDown, GotSavedScore))
+import Model exposing (Model, State(Paused, Flying), View(Game, Leaderboard))
+import Msg exposing (Msg(Tick, KeyUp, KeyDown, GotSavedScore, GotLeaderboard))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -15,6 +16,13 @@ update msg model =
         GotSavedScore highScore ->
             ( { model | highScore = highScore }, Cmd.none )
 
+        GotLeaderboard leaderboard ->
+            ( { model
+                | leaderboard = sortBy .score leaderboard |> reverse
+              }
+            , Cmd.none
+            )
+
         KeyDown code ->
             case code of
                 32 ->
@@ -25,6 +33,7 @@ update msg model =
                                 Flying
                             else
                                 Paused
+                        , view = Game
                       }
                     , Cmd.none
                     )
@@ -40,6 +49,19 @@ update msg model =
                 39 ->
                     -- Right
                     ( { model | rightThruster = True }, Cmd.none )
+
+                76 ->
+                    -- L: Leaderboard
+                    ( { model
+                        | view =
+                            if model.view == Leaderboard then
+                                Game
+                            else
+                                Leaderboard
+                        , state = Paused
+                      }
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )

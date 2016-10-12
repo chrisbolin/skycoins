@@ -1,0 +1,34 @@
+html,head,body {
+  padding:0; margin:0;
+}
+
+.leaderboard {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 35vw;
+  width: 30vw;
+  padding: 2vw 5vw;
+  font-size: 3vw;
+  background-color: black;
+  color: white;
+  margin-top: 1vw;
+}
+
+.leaderboard .header {
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.leaderboard .row {
+  padding: 0.5vw 0;
+}
+
+.leaderboard .row div {
+  display: inline-block;
+  width: 50%;
+}
+
+.leaderboard .row .score {
+  text-align: right;
+}
