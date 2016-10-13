@@ -1,4 +1,4 @@
-module Model exposing (Model, State(..), Goal(..), interate, initialModel, viewportMaxY)
+module Model exposing (Model, State(..), Goal(..), interate, initialModel, viewportMaxY, getHighScore, GameMode(..))
 
 import Utils exposing (floatModulo)
 import Config exposing (config)
@@ -12,11 +12,16 @@ type State
     | Crashed
     | Landed
     | Paused
+    | GameOver
 
 
 type Goal
     = Coin
     | Pad
+
+type GameMode
+    = NormalMode
+    | TimeTrialMode
 
 
 type alias Model =
@@ -44,11 +49,19 @@ type alias Model =
     , previousScore : Int
     , intervalLengthMs : Float
     , tapped : Bool
+    , mode : GameMode
     , highScore : Int
     , window :
         { width : Int
         , height : Int
         }
+    , padx : Float
+    , pady : Float
+    , padDirection : Int -- -1 is Left, 1 is Right
+    , timeRemaining : Float
+    , timeLimit : Float
+    , playing : Bool
+    , movingPad : Bool
     }
 
 getHighScore : String -> String -> Int
@@ -74,7 +87,6 @@ initialModel =
     , dy = 0
     , dtheta = 0
     , intervalLengthMs = 0
-    , previousScore = 0
     , coin =
         { x = 111.5
         , y = 65.6
@@ -84,19 +96,44 @@ initialModel =
         , y = 0
         , show = False
         }
-    , tapped = False
+    , padx = 40
+    , pady = 10
+    , padDirection = 1
+    , timeRemaining = 0
+    , timeLimit = 120
+    , mode = NormalMode
+    -- TO CACHE
     , highScore = getHighScore "0" "highscore"
+    , previousScore = 0
+    , tapped = False
     , window =
         { width = 0
         , height = 0
         }
+    , playing = False
+    , movingPad = False
     }
 
 
 interate : Model -> Model
 interate model =
-    model |> state |> goal |> vehicle |> coin
+    if model.state /= Crashed then
+        model |> time |> state |> goal |> vehicle |> pad |> coin
+    else
+        model
 
+time : Model -> Model
+time model =
+    --if round timeRemaining <= 0 then
+    if model.mode == TimeTrialMode && model.timeRemaining <= 0 then
+        crashedModel { initialModel
+            | previousScore = model.score
+            , tapped = model.tapped
+            , window = model.window
+            , movingPad = model.movingPad
+        }
+    else
+        model
 
 state : Model -> Model
 state model =
@@ -106,11 +143,11 @@ state model =
         { model | state = Paused }
     else if model.y > (config.vehicle.y / 2 + config.base.y) then -- Above sea level
         { model | state = Flying }
-    else if model.x < config.pad.x - 5 || model.x > config.pad.width + config.pad.x then -- Outside the pad
+    else if model.x < (model.padx - 5) || model.x > (model.padx + config.pad.width) then -- Outside the pad
         { model | state = Crashed }
-    else if abs model.dy > 20 then -- Max vertical speed not to crash
+    else if abs model.dy > 15 then -- Max vertical speed not to crash
         { model | state = Crashed }
-    else if abs model.dx > 20 then -- Max horizontal speed not to crash
+    else if abs model.dx > 15 then -- Max horizontal speed not to crash
         { model | state = Crashed }
     else if (model.theta > 30) && (model.theta < 330) then
         { model | state = Crashed }
@@ -163,6 +200,10 @@ coin model =
     else
         model
 
+crashedModel model =
+    { model | highScore = getHighScore "0" "highscore"
+    }
+
 
 vehicle : Model -> Model
 vehicle model =
@@ -206,7 +247,10 @@ vehicle model =
                 model.dx / config.correction.dx
 
         x1 =
-            (floatModulo (model.x + dx1 * intervalLength) 200)
+            if model.state == Landed && abs dx1 < toFloat model.score / 1000 then
+                model.x + (basePadIncrease model) * toFloat model.padDirection
+            else
+                (floatModulo (model.x + dx1 * intervalLength) 200)
 
         dtheta1 =
             if model.state == Flying then
@@ -235,17 +279,17 @@ vehicle model =
                 model
 
             Crashed ->
-                { initialModel
+                crashedModel { initialModel
                     | debris =
                         { x = x1
                         , y = y1
                         , show = True
                         }
-                    , highScore = getHighScore "0" "highscore"
                     , previousScore = model.score
-                    -- Keep current settings stored in model
                     , tapped = model.tapped
                     , window = model.window
+                    , playing = False
+                    , movingPad = model.movingPad
                 }
 
             _ ->
@@ -262,3 +306,36 @@ vehicle model =
                         , y = 0
                         }
                 }
+
+basePadIncrease : Model -> Float
+basePadIncrease model =
+    if model.movingPad then
+        0.05 + toFloat model.score/padScoreFractional
+    else
+        0
+
+padScoreFractional : Float
+padScoreFractional = 8000
+
+pad : Model -> Model
+pad model =
+    if model.state == Paused then
+        model
+    else
+        let
+            -- scaling
+            intervalLength =
+                model.intervalLengthMs / 100
+            dx = basePadIncrease model
+            padx' = model.padx + dx * toFloat model.padDirection
+            model' = { model | padx = padx' }
+            direction =
+                if (padx' + config.pad.width) > 200 - 10 then
+                    -1
+                else if padx' < 10 then
+                    1
+                else
+                    model.padDirection
+        in
+            { model' | padDirection = direction }
+

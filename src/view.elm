@@ -27,7 +27,7 @@ import Svg.Attributes
         , cy
         , r
         )
-import Model exposing (Model, State(Paused, Flying), Goal(..), viewportMaxY)
+import Model exposing (Model, State(Paused, Flying), Goal(..), viewportMaxY, GameMode(..))
 import Config exposing (config)
 import Msg exposing (Msg(..))
 import TouchEvents exposing (onTouchStart,onTouchEnd,TouchEvent(..))
@@ -80,13 +80,14 @@ game model =
     svg
         [ viewBox "0 0 200 100"
         , width "100%"
-        , height <| toString ( if model.tapped then 105 else 100 ) ++ "vh"
+        , height <| "99vh" --toString ( if model.tapped then 105 else 100 ) ++ "vh"
         , style' <| gameStyles model
         , onTouchEnd StartGame
         ]
         <|
             [ coin model
             , base model
+            , timer model
             , debris model
             , vehicle model
             , vehicle { model | x = model.x - 200 }
@@ -101,7 +102,7 @@ controls model =
     if model.tapped && model.state /= Paused then
         div [ onTouchStart TouchOn, onTouchEnd TouchOff, style
                 [ ( "position", "fixed" )
-                , ( "background", "rgba(100,0,0,0.1)" )
+                , ( "background", "rgba(100,0,0,0.05)" )
                 , ( "width", "100%" )
                 , ( "height", "100%" )
                 , ( "top", "0%")
@@ -135,18 +136,35 @@ hud model =
                 model.previousScore
             else
                 model.score
-        topY = model.y - config.vehicle.y |> round |> toString
+        altitude = model.y - config.vehicle.y - config.pad.height |> round |> toString
     in if model.state /= Paused then
-        [ text' [ y <| toString <| viewportMaxY model, x "3", constants.fontFamily, fontSize "12", fill "white" ] [ text <| "SCORE: " ++ toString score ]
+        [ text' [ y <| toString <| viewportMaxY model, x "3", constants.fontFamily, fontSize "12", fill "white" ]
+            [ text <| "SCORE: " ++ toString score ]
         , text' [ y <| toString <| (viewportMaxY model) - 5, x "146.25", constants.fontFamily, fontSize "4", fill "white" ]
-            [ text <| "altitude: " ++ topY ++ " | knots: " ++ (model.dx |> abs |> round |> toString)
+            [ text <| "altitude: " ++ altitude ++ " | knots: " ++ (model.dx |> abs |> round |> toString)
             ]
-        , text' [ y <| toString <| viewportMaxY model, x "154.5", constants.fontFamily, fontSize "4.5", fill "white" ]
-            [ text <| "HIGH SCORE: " ++ toString model.highScore ++ " | " ++ toString model.window.width
+        , text' [ y <| toString <| viewportMaxY model, x "154", constants.fontFamily, fontSize "4.5", fill "white" ]
+            [ text <| "HIGH SCORE: " ++ toString model.highScore
+            ]
+        ]
+    else if model.previousScore > 0 && not model.playing then
+        [ text' [ y <| toString <| viewportMaxY model, x "3", constants.fontFamily, fontSize "9", fill "white" ]
+            [ text <| "LAST SCORE: " ++ toString score ]
+        , text' [ y <| toString <| viewportMaxY model, x "130", constants.fontFamily, fontSize "9", fill "white" ]
+            [ text <| "HIGH SCORE: " ++ toString model.highScore
+            ]
+        ]
+    else if model.previousScore > 0 && model.playing then
+        [ text' [ y <| toString <| viewportMaxY model, x "3", constants.fontFamily, fontSize "9", fill "white" ]
+            [ text <| "CURRENT SCORE: " ++ toString score ]
+        , text' [ y <| toString <| viewportMaxY model, x "130", constants.fontFamily, fontSize "9", fill "white" ]
+            [ text <| "HIGH SCORE: " ++ toString model.highScore
             ]
         ]
     else
-        []
+        [ text' [ y <| toString <| viewportMaxY model, x "60", constants.fontFamily, fontSize "10", fill "white" ]
+            [ text <| "HIGH SCORE: " ++ toString model.highScore ]
+        ]
 
 
 coin : Model -> Svg.Svg a
@@ -166,7 +184,7 @@ base : Model -> Svg.Svg Msg
 base model =
     let
         maxY = viewportMaxY model
-        baseY = maxY - config.base.y
+        baseY = maxY - model.pady
         vehicleWidth = config.vehicle.x * cos (degrees model.theta)
     in
         g [] <|
@@ -181,12 +199,12 @@ base model =
                 ] []
             , line
                 -- pad
-                [ x1 <| toString config.pad.x
+                [ x1 <| toString model.padx--config.pad.x
                 , y1 (baseY + 0.5 |> toString)
-                , x2 (config.pad.x + config.pad.width |> toString)
+                , x2 (model.padx + config.pad.width |> toString)
                 , y2 (baseY + 0.5 |> toString)
                 , stroke <| if model.goal == Pad then config.pad.colorLand else config.pad.color
-                , strokeWidth (config.pad.y |> toString)
+                , strokeWidth (config.pad.height |> toString)
                 ] []
             , line
                 -- shadow
@@ -213,6 +231,33 @@ debris model =
     else
         text ""
 
+timerColor remaining =
+    if remaining <= 10 && remaining % 2 == 0 then
+        "#FFDD00"
+    else if remaining <= 10 && remaining % 2 == 1 then
+        "#FFFF00"
+    else
+        "gray"
+
+timer : Model -> Svg.Svg a
+timer model =
+    if model.state == Paused || model.mode == NormalMode then
+        g [] []
+    else
+        let
+            remaining = round <| model.timeRemaining
+        in
+            text' [ y "8", x "90", fontSize "12", constants.fontFamily, fill <| timerColor remaining ]
+                [ text <| toMinSegs remaining ]
+
+toMinSegs x =
+    let
+        mins = x // 60
+        segs = x - 60 * mins
+        mins' = if mins < 10 then "0" ++ toString mins else toString mins
+        segs' = if segs < 10 then "0" ++ toString segs else toString segs
+    in
+        mins' ++ ":" ++ segs'
 
 vehicle : Model -> Svg.Svg a
 vehicle model =
@@ -260,10 +305,10 @@ miniVehicle model =
             img
                 [ src "graphics/helicopter_white.svg"
                 , style <|
-                    [ ( "position", "absolute" )
-                    , ( "bottom", "5%" )
+                    [ ( "position", "fixed" )
+                    , ( "bottom", "4%" )
                     , ( "right", "30%" )
-                    , ( "width", "7%" )
+                    , ( "width", "6%" )
                     , ( "transform", vehicleTransform )
                     , ( "-webkit-transform", vehicleTransform )
                     , ( "-moz-transform", vehicleTransform )
@@ -281,19 +326,25 @@ title model =
     if model.state == Paused then
         g [ fontSize "7", fill constants.red ]
             [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
-            , text' [ y "62", x "2", constants.fontFamily ]
+            , text' [ y "60", x "2", constants.fontFamily ]
                 [ text "Get coin. Land safely. Repeat."
                 ]
-            , text' [ y "70", x "2.9", constants.fontFamily ]
+            , text' [ y "68", x "2.9", constants.fontFamily ]
                 [ text "Use on-screen buttons or up/left/right" 
                 ]
-            , text' [ y "83", x "25", constants.fontFamily, fill "yellow", fontSize "10" ]
-                [ text "TAP ANYWHERE OR PRESS SPACE TO PLAY"
+            , text' [ y "77", x "37", constants.fontFamily, fill "yellow", fontSize "8" ]
+                [ text "[1] Normal - [2] Two-Minute Time Trial"
                 ]
-            , text' [ y "4", x "166", constants.fontFamily, fontSize "4", fill "black" ]
-                [ a
-                    [ y "50", xlinkHref "http://chris.bolin.co", fill "black" ]
-                    [ text "© 2016 chris bolin"
+            , text' [ y "83", x "37", constants.fontFamily, fill "yellow", fontSize "6" ]
+                [ text <| "[P] Moving pad -> " ++ (if model.movingPad then "ON" else "OFF")
+                ]
+            , text' [ y "4", x "145", constants.fontFamily, fontSize "4", fill "black" ]
+                [ text "© 2016 -"
+                , a [ y "50", xlinkHref "http://chris.bolin.co", fill "black" ]
+                    [ text " @chrisbolin"
+                    ]
+                , a [ y "50", xlinkHref "http://github.com/jasalo", fill "black" ]
+                    [ text " @jasalo"
                     ]
                 ]
             ]

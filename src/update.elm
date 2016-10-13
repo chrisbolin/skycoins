@@ -2,7 +2,7 @@ module Update exposing (update)
 
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Model exposing (Model, State(..))
+import Model exposing (Model, State(..), GameMode(..), initialModel, getHighScore)
 import Msg exposing (Msg(..))
 import TouchEvents exposing (TouchEvent(..))
 import Window
@@ -21,20 +21,51 @@ update msg model =
         leftThrust state = ( { model | leftThruster = state }, Cmd.none )
         engine state = ( { model | mainEngine = state }, Cmd.none )
         rightThrust state = ( { model | rightThruster = state }, Cmd.none )
+        restartedModel = restartModel model
     in case msg of
         Tick intervalLengthMs ->
-            ( Model.interate { model | intervalLengthMs = intervalLengthMs }, Cmd.none )
+            let
+                newTime =
+                    if model.mode == TimeTrialMode then
+                        if model.state == Crashed then model.timeLimit
+                        else if model.state == Paused then model.timeRemaining
+                        else model.timeRemaining - intervalLengthMs/1000
+                    else
+                        model.timeLimit
+            in
+                ( Model.interate { model | intervalLengthMs = intervalLengthMs, timeRemaining = newTime }, Cmd.none )
 
         KeyDown code ->
             case code of
                 32 ->
                     -- Spacebar
-                    let model' = { startGame | tapped = False }
+                    --model' = { startGame | tapped = False }
+                    let
+                        model' = { model | state =
+                            if model.state == Paused then
+                                Flying
+                            else
+                                Paused
+                        }
                     in
-                        if model.state == Crashed then
+                        if model.playing then
                             ( model', Cmd.none )
                         else
-                            ( startGame, Cmd.none )
+                            ( model, Cmd.none )
+                49 ->
+                    -- 1 => Normal Mode
+                    if model.state == Paused then
+                        ( { restartedModel | mode = NormalMode }, Cmd.none )
+                    else
+                        ( model, Cmd.none )
+
+                50 ->
+                    -- 2 => TimeTrial Mode
+                    if model.state == Paused then
+                        ( { restartedModel | timeRemaining = model.timeLimit, mode = TimeTrialMode }, Cmd.none )
+                    else
+                        ( model, Cmd.none )
+
 
                 37 ->
                     -- Left
@@ -48,7 +79,15 @@ update msg model =
                     -- Right
                     rightThrust True
 
+                80 ->
+                    -- P - Toggle pad movement
+                    if model.state == Paused then 
+                        ( { model | movingPad = not model.movingPad }, Cmd.none )
+                    else
+                        ( model, Cmd.none )
+
                 _ ->
+                    --Debug.log (toString code) ( model, Cmd.none )
                     ( model, Cmd.none )
 
         KeyUp code ->
@@ -62,8 +101,8 @@ update msg model =
                 39 ->
                     rightThrust False
 
-                82 ->
-                    init
+                --82 ->
+                --    init
 
                 _ ->
                     ( model, Cmd.none )
@@ -112,7 +151,17 @@ update msg model =
         _ ->
             ( model, Cmd.none )
         
-
+restartModel model =
+    { initialModel
+        | state = Flying
+        , timeLimit = model.timeLimit
+        , highScore = getHighScore "0" "highscore"
+        , previousScore = model.score
+        , tapped = model.tapped
+        , window = model.window
+        , playing = True
+        , movingPad = model.movingPad
+    }
 
 -- Subscriptions
 

@@ -1,6 +1,9 @@
 # SKYCOINS: A Game
 
-[bolin.co/skycoins](http://chris.bolin.co/skycoins)
+A slightly modified version of the awesome [Chris Bolin's Skycoins](https://github.com/chrisbolin/skycoins)
+
+Play it here:
+[skycoins.jasalo.com](http://skycoins.jasalo.com)
 
 ## Code
 
@@ -9,10 +12,3 @@
 * `elm-reactor`
 * `open http://localhost:8000/main.elm`
 * `arrow keys`
-
-# TODOs
-
-- HUD (angle, etc)
-
-- Time trial
-- Multiplayer

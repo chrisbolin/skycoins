@@ -15,7 +15,7 @@ type alias Config =
         , color : String
         }
     , pad :
-        { y : Float
+        { height : Float
         , x : Float
         , color : String
         , colorLand : String
@@ -44,7 +44,7 @@ config =
         }
     , gravity = 1.2
     , engine = 2.1
-    , thrusters = 1
+    , thrusters = 1.1
     , backgroundColor = "#9DACC9"
     , base =
         { color = "#202692"
@@ -53,9 +53,9 @@ config =
     , pad =
         { color = "#808080"
         , colorLand = "#DDEF12"
-        , x = 30
-        , y = 3
-        , width = 150
+        , x = 40
+        , height = 3
+        , width = 30
         }
     , correction =
         { theta = 2
