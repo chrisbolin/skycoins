@@ -306,9 +306,9 @@ miniVehicle model =
                 [ src "graphics/helicopter_white.svg"
                 , style <|
                     [ ( "position", "fixed" )
-                    , ( "bottom", "4%" )
+                    , ( "bottom", "5%" )
                     , ( "right", "30%" )
-                    , ( "width", "6%" )
+                    , ( "width", "7%" )
                     , ( "transform", vehicleTransform )
                     , ( "-webkit-transform", vehicleTransform )
                     , ( "-moz-transform", vehicleTransform )
@@ -327,16 +327,16 @@ title model =
         g [ fontSize "7", fill constants.red ]
             [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
             , text' [ y "60", x "2", constants.fontFamily ]
-                [ text "Get coin. Land safely. Repeat."
+                [ text "get coins. land safely. repeat."
                 ]
             , text' [ y "68", x "2.9", constants.fontFamily ]
-                [ text "Use on-screen buttons or up/left/right" 
+                [ text "up/left/right" 
                 ]
-            , text' [ y "77", x "37", constants.fontFamily, fill "yellow", fontSize "8" ]
-                [ text "[1] Normal - [2] Two-Minute Time Trial"
+            , text' [ y "78", x "37", constants.fontFamily, fill "yellow", fontSize "8" ]
+                [ text "[1] normal - [2] two-minute time trial"
                 ]
-            , text' [ y "83", x "37", constants.fontFamily, fill "yellow", fontSize "6" ]
-                [ text <| "[P] Moving pad -> " ++ (if model.movingPad then "ON" else "OFF")
+            , text' [ y "85", x "37", constants.fontFamily, fill "yellow", fontSize "6" ]
+                [ text <| "[P] moving pad -> " ++ (if model.movingPad then "ON" else "OFF")
                 ]
             , text' [ y "4", x "145", constants.fontFamily, fontSize "4", fill "black" ]
                 [ text "© 2016 -"
