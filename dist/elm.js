@@ -9797,6 +9797,18 @@ var _elm_lang$elm_architecture_tutorial$Update$subscriptions = function (model) 
 				_elm_lang$animation_frame$AnimationFrame$diffs(_elm_lang$elm_architecture_tutorial$Msg$Tick)
 			]));
 };
+var _elm_lang$elm_architecture_tutorial$Update$togglePause = function (model) {
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				state: _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? _elm_lang$elm_architecture_tutorial$Model$Flying : _elm_lang$elm_architecture_tutorial$Model$Paused,
+				view: _elm_lang$elm_architecture_tutorial$Model$Game
+			}),
+		_1: _elm_lang$core$Platform_Cmd$none
+	};
+};
 var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -9833,17 +9845,10 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 			case 'KeyDown':
 				var _p1 = _p0._0;
 				switch (_p1) {
+					case 27:
+						return _elm_lang$elm_architecture_tutorial$Update$togglePause(model);
 					case 32:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{
-									state: _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Paused) ? _elm_lang$elm_architecture_tutorial$Model$Flying : _elm_lang$elm_architecture_tutorial$Model$Paused,
-									view: _elm_lang$elm_architecture_tutorial$Model$Game
-								}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
+						return _elm_lang$elm_architecture_tutorial$Update$togglePause(model);
 					case 37:
 						return {
 							ctor: '_Tuple2',

@@ -25,18 +25,13 @@ update msg model =
 
         KeyDown code ->
             case code of
+                27 ->
+                    -- Escape
+                    togglePause model
+
                 32 ->
                     -- Spacebar
-                    ( { model
-                        | state =
-                            if model.state == Paused then
-                                Flying
-                            else
-                                Paused
-                        , view = Game
-                      }
-                    , Cmd.none
-                    )
+                    togglePause model
 
                 37 ->
                     -- Left
@@ -82,6 +77,20 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+
+togglePause : Model -> ( Model, Cmd a )
+togglePause model =
+    ( { model
+        | state =
+            if model.state == Paused then
+                Flying
+            else
+                Paused
+        , view = Game
+      }
+    , Cmd.none
+    )
 
 
 
