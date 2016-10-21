@@ -62,33 +62,37 @@ game model =
         [ viewBox "0 0 200 100"
         , width "100%"
         , Svg.Attributes.style ("background-color:" ++ config.backgroundColor)
+        , fontFamily constants.font
         ]
         [ coin model
         , base model
         , score model
         , debris model
         , vehicle model
+        , dashboard model
         , vehicle { model | x = model.x - 200 }
-        , title model
+        , paused model
         ]
 
 
 score : Model -> Svg.Svg a
 score model =
-    g []
-        [ text' [ y "9", x "2.5", fontFamily constants.font, fontSize "14" ] [ text (toString model.score) ]
-        , text' [ y "16", x "3", fontFamily constants.font, fontSize "7" ]
-            [ text
-                (if model.highScore > 0 then
-                    ("Best " ++ toString model.highScore)
-                 else
-                    ""
-                )
+    text' [ y "11", x "3", fontSize "11" ] [ text (toString model.score) ]
+
+
+dashboard : Model -> Svg.Svg a
+dashboard model =
+    if model.dashboard == True then
+        g [ fontSize "4", fill "#ddd", transform "translate(165 8)" ]
+            [ text' []
+                [ text ("Ground Speed: " ++ (model.dx |> abs |> round |> toString))
+                ]
+            , text' [ y "5" ]
+                [ text ("Altitude: " ++ (model.y - 12 |> round |> toString))
+                ]
             ]
-        , text' [ y "5", x "158", fontFamily constants.font, fontSize "4", fill "#ddd" ]
-            [ text ("ground speed, knots: " ++ (model.dx |> abs |> round |> toString))
-            ]
-        ]
+    else
+        text ""
 
 
 coin : Model -> Svg.Svg a
@@ -197,32 +201,59 @@ vehicle model =
             []
 
 
-title : Model -> Svg.Svg a
-title model =
+paused : Model -> Svg.Svg a
+paused model =
     if model.state == Paused then
-        g [ fontSize "7", fill constants.red ]
-            [ text' [ y "50", fontFamily constants.font, fontSize "59" ] [ text "SKYCOINS" ]
-            , text' [ y "62", x "2", fontFamily constants.font ]
-                [ text """"A really shitty game." - early fan"""
+        g []
+            [ title
+              -- personal best
+            , text' [ y "11", x "100", fontSize "11", fill "black", textAnchor "middle" ]
+                [ text
+                    (if model.highScore > 0 then
+                        ("Best " ++ toString model.highScore)
+                     else
+                        ""
+                    )
                 ]
-            , text' [ y "70", x "2.9", fontFamily constants.font ]
-                [ text "get coins. land safely. repeat."
-                ]
-            , text' [ y "78", x "2.9", fontFamily constants.font ]
-                [ text "up/left/right"
-                ]
-            , text' [ y "88", x "2.9", fontFamily constants.font, fill "black" ]
-                [ text "PRESS SPACE TO PLAY"
-                ]
-            , text' [ y "92", x "166", fontFamily constants.font, fontSize "4", fill "black" ]
+            , menu
+            , text' [ y "99", x "166", fontSize "4", fill "black" ]
                 [ a
-                    [ y "50", xlinkHref "http://chris.bolin.co", fill "black" ]
+                    [ xlinkHref "http://chris.bolin.co", fill "white" ]
                     [ text "© 2016 chris bolin"
                     ]
                 ]
             ]
     else
         text ""
+
+
+title : Svg.Svg a
+title =
+    g [ fontSize "7", fill constants.red ]
+        [ text' [ y "50", fontSize "59" ] [ text "SKYCOINS" ]
+        , text' [ y "62", x "2" ]
+            [ text """"A really shitty game." - early fan"""
+            ]
+        , text' [ y "70", x "2.9" ]
+            [ text "get coins. land safely. repeat."
+            ]
+        , text' [ y "78", x "2.9" ]
+            [ text "up/left/right"
+            ]
+          -- press start
+        , text' [ y "88", x "100", fill "white", textAnchor "middle" ]
+            [ text "PRESS SPACE"
+            ]
+        ]
+
+
+menu : Svg.Svg a
+menu =
+    g [ fontSize "4", fill "white", transform "translate(165 60)" ]
+        [ text' [] [ text "[L] - Leaderboard" ]
+        , text' [ y "5" ] [ text "[D] - Dashboard" ]
+        , text' [ y "10" ] [ text "[Space] - Pause" ]
+        ]
 
 
 leaderboardRow : LeaderboardEntry -> Html Msg

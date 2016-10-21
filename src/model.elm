@@ -61,6 +61,7 @@ type alias Model =
     , intervalLengthMs : Float
     , leaderboard : Leaderboard
     , username : String
+    , dashboard : Bool
     }
 
 
@@ -93,6 +94,7 @@ initialModel =
         }
     , leaderboard = []
     , username = ""
+    , dashboard = False
     }
 
 
@@ -244,6 +246,7 @@ vehicle model =
                     , highScore = model.highScore
                     , score = model.score
                     , leaderboard = model.leaderboard
+                    , dashboard = model.dashboard
                 }
 
             _ ->

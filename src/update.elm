@@ -74,6 +74,10 @@ update msg model =
                             -- Right
                             ( { model | rightThruster = True }, Cmd.none )
 
+                        68 ->
+                            -- D: Dashboard
+                            ( { model | dashboard = not model.dashboard }, Cmd.none )
+
                         76 ->
                             -- L: Leaderboard
                             ( { model
