@@ -1,6 +1,7 @@
 module Msg exposing (Msg(..))
 
 import Keyboard exposing (KeyCode)
+import Model exposing (Leaderboard)
 
 
 type Msg
@@ -8,3 +9,6 @@ type Msg
     | KeyUp KeyCode
     | Tick Float
     | GotSavedScore Int
+    | GotLeaderboard Leaderboard
+    | ChangeName String
+    | SubmitName

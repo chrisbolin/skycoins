@@ -1,7 +1,8 @@
 module View exposing (view)
 
-import Html exposing (Html, div)
-import Html.Attributes exposing (style, type')
+import Html exposing (Html, div, h1, input)
+import Html.Attributes exposing (style, type', class, placeholder, maxlength, value)
+import Html.Events exposing (onInput, onClick)
 import Svg exposing (svg, circle, line, rect, use, g, a, text, text', Attribute)
 import Svg.Attributes
     exposing
@@ -23,17 +24,17 @@ import Svg.Attributes
         , fontSize
         , textAnchor
         )
-import Model exposing (Model, State(Paused, Flying), Goal(Coin))
+import Model exposing (Model, LeaderboardEntry, State(Paused, Flying), View(Leaderboard, AddToLeaderboard), Goal(Coin))
 import Config exposing (config)
-import Msg exposing (Msg(Tick, KeyUp, KeyDown))
+import Msg exposing (Msg(Tick, KeyUp, KeyDown, ChangeName, SubmitName))
 
 
 constants :
-    { fontFamily : Attribute a
+    { font : String
     , red : String
     }
 constants =
-    { fontFamily = fontFamily "VT323, monospace"
+    { font = "VT323, monospace"
     , red = "#dd5555"
     }
 
@@ -42,21 +43,16 @@ view : Model -> Html Msg
 view model =
     let
         mainStyle =
-            Html.Attributes.style
+            style
                 [ ( "padding", "0px" )
                 , ( "height", "100vh" )
                 , ( "background-color", config.base.color )
-                ]
-
-        fontImport =
-            Html.node "style"
-                [ type' "text/css" ]
-                [ Html.text "@import 'https://fonts.googleapis.com/css?family=VT323"
+                , ( "font-family", "VT323, monospace" )
                 ]
     in
         div [ mainStyle ]
-            [ fontImport
-            , game model
+            [ game model
+            , leaderboard model
             ]
 
 
@@ -66,33 +62,37 @@ game model =
         [ viewBox "0 0 200 100"
         , width "100%"
         , Svg.Attributes.style ("background-color:" ++ config.backgroundColor)
+        , fontFamily constants.font
         ]
         [ coin model
         , base model
         , score model
         , debris model
         , vehicle model
+        , dashboard model
         , vehicle { model | x = model.x - 200 }
-        , title model
+        , paused model
         ]
 
 
 score : Model -> Svg.Svg a
 score model =
-    g []
-        [ text' [ y "9", x "2.5", constants.fontFamily, fontSize "14" ] [ text (toString model.score) ]
-        , text' [ y "16", x "3", constants.fontFamily, fontSize "7" ]
-            [ text
-                (if model.highScore > 0 then
-                    ("Best " ++ toString model.highScore)
-                 else
-                    ""
-                )
+    text' [ y "11", x "3", fontSize "11" ] [ text (toString model.score) ]
+
+
+dashboard : Model -> Svg.Svg a
+dashboard model =
+    if model.dashboard == True then
+        g [ fontSize "4", fill "#ddd", transform "translate(165 8)" ]
+            [ text' []
+                [ text ("Ground Speed: " ++ (model.dx |> abs |> round |> toString))
+                ]
+            , text' [ y "5" ]
+                [ text ("Altitude: " ++ (model.y - 12 |> round |> toString))
+                ]
             ]
-        , text' [ y "5", x "158", constants.fontFamily, fontSize "4", fill "#ddd" ]
-            [ text ("ground speed, knots: " ++ (model.dx |> abs |> round |> toString))
-            ]
-        ]
+    else
+        text ""
 
 
 coin : Model -> Svg.Svg a
@@ -201,29 +201,95 @@ vehicle model =
             []
 
 
-title : Model -> Svg.Svg a
-title model =
+paused : Model -> Svg.Svg a
+paused model =
     if model.state == Paused then
-        g [ fontSize "7", fill constants.red ]
-            [ text' [ y "50", constants.fontFamily, fontSize "59" ] [ text "SKYCOINS" ]
-            , text' [ y "62", x "2", constants.fontFamily ]
-                [ text """"A really shitty game." - early fan"""
+        g []
+            [ title
+              -- personal best
+            , text' [ y "11", x "100", fontSize "11", fill "black", textAnchor "middle" ]
+                [ text
+                    (if model.highScore > 0 then
+                        ("Best " ++ toString model.highScore)
+                     else
+                        ""
+                    )
                 ]
-            , text' [ y "70", x "2.9", constants.fontFamily ]
-                [ text "get coins. land safely. repeat."
-                ]
-            , text' [ y "78", x "2.9", constants.fontFamily ]
-                [ text "up/left/right"
-                ]
-            , text' [ y "88", x "2.9", constants.fontFamily, fill "black" ]
-                [ text "PRESS SPACE TO PLAY"
-                ]
-            , text' [ y "92", x "166", constants.fontFamily, fontSize "4", fill "black" ]
+            , menu
+            , text' [ y "99", x "166", fontSize "4", fill "black" ]
                 [ a
-                    [ y "50", xlinkHref "http://chris.bolin.co", fill "black" ]
+                    [ xlinkHref "http://chris.bolin.co", fill "white" ]
                     [ text "© 2016 chris bolin"
                     ]
                 ]
             ]
     else
         text ""
+
+
+title : Svg.Svg a
+title =
+    g [ fontSize "7", fill constants.red ]
+        [ text' [ y "50", fontSize "59" ] [ text "SKYCOINS" ]
+        , text' [ y "62", x "2" ]
+            [ text """"A really shitty game." - early fan"""
+            ]
+        , text' [ y "70", x "2.9" ]
+            [ text "get coins. land safely. repeat."
+            ]
+        , text' [ y "78", x "2.9" ]
+            [ text "up/left/right"
+            ]
+          -- press start
+        , text' [ y "88", x "100", fill "white", textAnchor "middle" ]
+            [ text "PRESS SPACE"
+            ]
+        ]
+
+
+menu : Svg.Svg a
+menu =
+    g [ fontSize "4", fill "white", transform "translate(165 60)" ]
+        [ text' [] [ text "[L] - Leaderboard" ]
+        , text' [ y "5" ] [ text "[D] - Dashboard" ]
+        , text' [ y "10" ] [ text "[Space] - Pause" ]
+        ]
+
+
+leaderboardRow : LeaderboardEntry -> Html Msg
+leaderboardRow entry =
+    div [ class "row" ]
+        [ div [] [ text entry.username ]
+        , div [ class "score" ] [ entry.score |> toString |> text ]
+        ]
+
+
+leaderboard : Model -> Html Msg
+leaderboard model =
+    if (model.view == Leaderboard) || (model.view == AddToLeaderboard) then
+        div []
+            [ div [ class "leaderboard" ]
+                (div [ class "header row" ] [ text "leaderboard" ]
+                    :: List.map
+                        leaderboardRow
+                        model.leaderboard
+                )
+            , addToLeaderboard model
+            ]
+    else
+        div [] []
+
+
+addToLeaderboard : Model -> Html Msg
+addToLeaderboard model =
+    if model.view == AddToLeaderboard then
+        div [ class "add-to-leaderboard leaderboard" ]
+            [ div [ class "header row" ] [ text "new high score!" ]
+            , div [ class "row" ]
+                [ div [] [ input [ value model.username, placeholder "you", maxlength 3, onInput ChangeName ] [] ]
+                , div [ class "score" ] [ model.newHighScore |> toString |> text ]
+                ]
+            , div [ class "button", onClick SubmitName ] [ text "OK" ]
+            ]
+    else
+        div [] []
