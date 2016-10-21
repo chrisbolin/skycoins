@@ -35,6 +35,7 @@ function saveLeaderboardScore(username, score) {
   db.ref('highscores').push({
     username: username,
     score: score,
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
   });
 }
 
