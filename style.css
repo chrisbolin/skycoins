@@ -1,6 +1,14 @@
+/* imports */
+
+@import "https://fonts.googleapis.com/css?family=VT323";
+
+/* base */
+
 html,head,body {
   padding:0; margin:0;
 }
+
+/* leaderboard */
 
 .leaderboard {
   box-sizing: border-box;
@@ -31,4 +39,37 @@ html,head,body {
 
 .leaderboard .row .score {
   text-align: right;
+}
+
+/* add-to-leaderboard */
+
+.add-to-leaderboard {
+  /*box-sizing: border-box;*/
+  position: fixed;
+  top: 14.5vw;
+  padding: 3vw 4vw;
+  font-size: 3vw;
+  background-color: black;
+  color: white;
+  margin-top: 1vw;
+  border: 1vw solid white;
+  text-transform: uppercase;
+}
+
+input {
+  font-family: inherit;
+  color: inherit;
+  background-color: inherit;
+  border: none;
+  font-size: inherit;
+  outline:none;
+  text-transform: inherit;
+}
+
+.button {
+  text-align: center;
+  background-color: white;
+  color: black;
+  margin: 2vw auto 0.5vw;
+  width: 11vw;
 }

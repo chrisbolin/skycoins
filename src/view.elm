@@ -1,7 +1,8 @@
 module View exposing (view)
 
-import Html as H exposing (Html, div, h1)
-import Html.Attributes as HA exposing (style, type', class)
+import Html exposing (Html, div, h1, input)
+import Html.Attributes exposing (style, type', class, placeholder, maxlength, value)
+import Html.Events exposing (onInput, onClick)
 import Svg exposing (svg, circle, line, rect, use, g, a, text, text', Attribute)
 import Svg.Attributes
     exposing
@@ -23,9 +24,9 @@ import Svg.Attributes
         , fontSize
         , textAnchor
         )
-import Model exposing (Model, LeaderboardEntry, State(Paused, Flying), View(Leaderboard), Goal(Coin))
+import Model exposing (Model, LeaderboardEntry, State(Paused, Flying), View(Leaderboard, AddToLeaderboard), Goal(Coin))
 import Config exposing (config)
-import Msg exposing (Msg(Tick, KeyUp, KeyDown))
+import Msg exposing (Msg(Tick, KeyUp, KeyDown, ChangeName, SubmitName))
 
 
 constants :
@@ -42,22 +43,15 @@ view : Model -> Html Msg
 view model =
     let
         mainStyle =
-            HA.style
+            style
                 [ ( "padding", "0px" )
                 , ( "height", "100vh" )
                 , ( "background-color", config.base.color )
                 , ( "font-family", "VT323, monospace" )
                 ]
-
-        fontImport =
-            H.node "style"
-                [ type' "text/css" ]
-                [ H.text "@import 'https://fonts.googleapis.com/css?family=VT323"
-                ]
     in
         div [ mainStyle ]
-            [ fontImport
-            , game model
+            [ game model
             , leaderboard model
             ]
 
@@ -234,19 +228,37 @@ title model =
 leaderboardRow : LeaderboardEntry -> Html Msg
 leaderboardRow entry =
     div [ class "row" ]
-        [ div [] [ H.text entry.username ]
-        , div [ class "score" ] [ entry.score |> toString |> H.text ]
+        [ div [] [ text entry.username ]
+        , div [ class "score" ] [ entry.score |> toString |> text ]
         ]
 
 
 leaderboard : Model -> Html Msg
 leaderboard model =
-    if model.view == Leaderboard then
-        div [ class "leaderboard" ]
-            (div [ class "header row" ] [ H.text "leaderboard" ]
-                :: List.map
-                    leaderboardRow
-                    model.leaderboard
-            )
+    if (model.view == Leaderboard) || (model.view == AddToLeaderboard) then
+        div []
+            [ div [ class "leaderboard" ]
+                (div [ class "header row" ] [ text "leaderboard" ]
+                    :: List.map
+                        leaderboardRow
+                        model.leaderboard
+                )
+            , addToLeaderboard model
+            ]
+    else
+        div [] []
+
+
+addToLeaderboard : Model -> Html Msg
+addToLeaderboard model =
+    if model.view == AddToLeaderboard then
+        div [ class "add-to-leaderboard leaderboard" ]
+            [ div [ class "header row" ] [ text "new high score!" ]
+            , div [ class "row" ]
+                [ div [] [ input [ value model.username, placeholder "you", maxlength 3, onInput ChangeName ] [] ]
+                , div [ class "score" ] [ model.newHighScore |> toString |> text ]
+                ]
+            , div [ class "button", onClick SubmitName ] [ text "OK" ]
+            ]
     else
         div [] []

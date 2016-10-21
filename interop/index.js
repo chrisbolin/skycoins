@@ -16,24 +16,33 @@ var HIGHSCORE = 'HIGHSCORE';
 
 // subscriptions
 
-app.ports.saveScore.subscribe(function(score) {
-  console.log('saveScore()', score);
-  localStorage.setItem(HIGHSCORE, score);
-  saveHighScore('C*B', score);
+app.ports.saveScore.subscribe(function(payload) {
+  var username = payload[0];
+  var score = payload[1];
+  saveLocalHighscore(score);
+  saveLeaderboardScore(username, score);
 });
 
 // initialize
 
-var highScore = parseInt(localStorage.getItem(HIGHSCORE)) || 0;
+var highScore = getLocalHighScore();
 app.ports.getSavedScore.send(highScore);
 
 // firebase methods
 
-function saveHighScore(username, score) {
+function saveLeaderboardScore(username, score) {
+  console.log('Saving new leaderboard entry', score, 'for', username);
   db.ref('highscores').push({
     username: username,
     score: score,
   });
+}
+
+function saveLocalHighscore(score) {
+  if (score > getLocalHighScore()) {
+    console.log('Saving new LOCAL best', score);
+    localStorage.setItem(HIGHSCORE, score);
+  }
 }
 
 function getLeaderboard() {
@@ -48,3 +57,10 @@ function getLeaderboard() {
 }
 
 getLeaderboard();
+
+
+// helpers
+
+function getLocalHighScore() {
+  return parseInt(localStorage.getItem(HIGHSCORE)) || 0;
+}

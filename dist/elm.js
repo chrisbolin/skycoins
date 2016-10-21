@@ -8310,11 +8310,14 @@ var _elm_lang$elm_architecture_tutorial$Utils$floatModulo = F2(
 		}
 	});
 
-var _elm_lang$elm_architecture_tutorial$Model$saveScore = _elm_lang$core$Native_Platform.outgoingPort(
-	'saveScore',
-	function (v) {
-		return v;
-	});
+var _elm_lang$elm_architecture_tutorial$Model$leaderboardThreshold = function (model) {
+	var last = A2(
+		_elm_lang$core$Maybe$withDefault,
+		{score: 0, username: ''},
+		_elm_lang$core$List$head(
+			_elm_lang$core$List$reverse(model.leaderboard)));
+	return last.score;
+};
 var _elm_lang$elm_architecture_tutorial$Model$LeaderboardEntry = F2(
 	function (a, b) {
 		return {score: a, username: b};
@@ -8337,7 +8340,11 @@ var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 															return function (p) {
 																return function (q) {
 																	return function (r) {
-																		return {state: a, view: b, goal: c, score: d, mainEngine: e, rightThruster: f, leftThruster: g, x: h, y: i, theta: j, dx: k, dy: l, dtheta: m, coin: n, debris: o, highScore: p, intervalLengthMs: q, leaderboard: r};
+																		return function (s) {
+																			return function (t) {
+																				return {state: a, view: b, goal: c, score: d, newHighScore: e, mainEngine: f, rightThruster: g, leftThruster: h, x: i, y: j, theta: k, dx: l, dy: m, dtheta: n, coin: o, debris: p, highScore: q, intervalLengthMs: r, leaderboard: s, username: t};
+																			};
+																		};
 																	};
 																};
 															};
@@ -8356,25 +8363,26 @@ var _elm_lang$elm_architecture_tutorial$Model$Model = function (a) {
 		};
 	};
 };
+var _elm_lang$elm_architecture_tutorial$Model$AddToLeaderboard = {ctor: 'AddToLeaderboard'};
 var _elm_lang$elm_architecture_tutorial$Model$Leaderboard = {ctor: 'Leaderboard'};
 var _elm_lang$elm_architecture_tutorial$Model$Game = {ctor: 'Game'};
 var _elm_lang$elm_architecture_tutorial$Model$Paused = {ctor: 'Paused'};
 var _elm_lang$elm_architecture_tutorial$Model$Landed = {ctor: 'Landed'};
 var _elm_lang$elm_architecture_tutorial$Model$Crashed = {ctor: 'Crashed'};
 var _elm_lang$elm_architecture_tutorial$Model$highScore = function (model) {
-	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? ((_elm_lang$core$Native_Utils.cmp(model.score, model.highScore) > 0) ? {
+	var highScore = A2(_elm_lang$core$Basics$max, model.score, model.highScore);
+	var updatedModel = _elm_lang$core$Native_Utils.update(
+		model,
+		{highScore: highScore});
+	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? ((_elm_lang$core$Native_Utils.cmp(
+		model.score,
+		_elm_lang$elm_architecture_tutorial$Model$leaderboardThreshold(model)) > 0) ? {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
-			model,
-			{highScore: model.score, score: 0, state: _elm_lang$elm_architecture_tutorial$Model$Paused, view: _elm_lang$elm_architecture_tutorial$Model$Leaderboard}),
-		_1: _elm_lang$elm_architecture_tutorial$Model$saveScore(model.score)
-	} : {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_Utils.update(
-			model,
-			{score: 0}),
+			updatedModel,
+			{view: _elm_lang$elm_architecture_tutorial$Model$AddToLeaderboard, newHighScore: model.score}),
 		_1: _elm_lang$core$Platform_Cmd$none
-	}) : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	} : {ctor: '_Tuple2', _0: updatedModel, _1: _elm_lang$core$Platform_Cmd$none}) : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 };
 var _elm_lang$elm_architecture_tutorial$Model$Flying = {ctor: 'Flying'};
 var _elm_lang$elm_architecture_tutorial$Model$state = function (model) {
@@ -8384,7 +8392,7 @@ var _elm_lang$elm_architecture_tutorial$Model$state = function (model) {
 	} else {
 		return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? _elm_lang$core$Native_Utils.update(
 			model,
-			{state: _elm_lang$elm_architecture_tutorial$Model$Paused}) : ((_elm_lang$core$Native_Utils.cmp(model.y, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y) > 0) ? _elm_lang$core$Native_Utils.update(
+			{state: _elm_lang$elm_architecture_tutorial$Model$Paused, score: 0}) : ((_elm_lang$core$Native_Utils.cmp(model.y, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y) > 0) ? _elm_lang$core$Native_Utils.update(
 			model,
 			{state: _elm_lang$elm_architecture_tutorial$Model$Flying}) : (((_elm_lang$core$Native_Utils.cmp(model.x, 45) < 0) || (_elm_lang$core$Native_Utils.cmp(model.x, 50 + _elm_lang$elm_architecture_tutorial$Config$config.pad.x) > 0)) ? _elm_lang$core$Native_Utils.update(
 			model,
@@ -8433,6 +8441,7 @@ var _elm_lang$elm_architecture_tutorial$Model$initialModel = {
 	view: _elm_lang$elm_architecture_tutorial$Model$Game,
 	goal: _elm_lang$elm_architecture_tutorial$Model$Coin,
 	score: 0,
+	newHighScore: 0,
 	mainEngine: false,
 	rightThruster: false,
 	leftThruster: false,
@@ -8447,7 +8456,8 @@ var _elm_lang$elm_architecture_tutorial$Model$initialModel = {
 	coin: {x: 111.5, y: 65.6},
 	debris: {x: 0, y: 0, show: false},
 	leaderboard: _elm_lang$core$Native_List.fromArray(
-		[])
+		[]),
+	username: ''
 };
 var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 	var thetaRad = _elm_lang$core$Basics$degrees(model.theta);
@@ -8471,6 +8481,7 @@ var _elm_lang$elm_architecture_tutorial$Model$vehicle = function (model) {
 				_elm_lang$elm_architecture_tutorial$Model$initialModel,
 				{
 					debris: {x: x1, y: y1, show: true},
+					username: model.username,
 					state: model.state,
 					highScore: model.highScore,
 					score: model.score,
@@ -8858,6 +8869,107 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 				A2(_elm_lang$core$List$filter, _elm_lang$core$Basics$snd, list))));
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
+
+var _elm_lang$html$Html_Events$keyCode = A2(_elm_lang$core$Json_Decode_ops[':='], 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$html$Html_Events$targetChecked = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'checked']),
+	_elm_lang$core$Json_Decode$bool);
+var _elm_lang$html$Html_Events$targetValue = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'value']),
+	_elm_lang$core$Json_Decode$string);
+var _elm_lang$html$Html_Events$defaultOptions = _elm_lang$virtual_dom$VirtualDom$defaultOptions;
+var _elm_lang$html$Html_Events$onWithOptions = _elm_lang$virtual_dom$VirtualDom$onWithOptions;
+var _elm_lang$html$Html_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$html$Html_Events$onFocus = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'focus',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onBlur = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'blur',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onSubmitOptions = _elm_lang$core$Native_Utils.update(
+	_elm_lang$html$Html_Events$defaultOptions,
+	{preventDefault: true});
+var _elm_lang$html$Html_Events$onSubmit = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'submit',
+		_elm_lang$html$Html_Events$onSubmitOptions,
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onCheck = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _elm_lang$html$Html_Events$onInput = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'input',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetValue));
+};
+var _elm_lang$html$Html_Events$onMouseOut = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseout',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseOver = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseover',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseLeave = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseleave',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseEnter = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseenter',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseUp = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseup',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseDown = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mousedown',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onDoubleClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'dblclick',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'click',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$Options = F2(
+	function (a, b) {
+		return {stopPropagation: a, preventDefault: b};
+	});
 
 var _elm_lang$svg$Svg$text = _elm_lang$virtual_dom$VirtualDom$text;
 var _elm_lang$svg$Svg$svgNamespace = A2(
@@ -9377,6 +9489,10 @@ var _elm_lang$keyboard$Keyboard$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
 
+var _elm_lang$elm_architecture_tutorial$Msg$SubmitName = {ctor: 'SubmitName'};
+var _elm_lang$elm_architecture_tutorial$Msg$ChangeName = function (a) {
+	return {ctor: 'ChangeName', _0: a};
+};
 var _elm_lang$elm_architecture_tutorial$Msg$GotLeaderboard = function (a) {
 	return {ctor: 'GotLeaderboard', _0: a};
 };
@@ -9393,6 +9509,81 @@ var _elm_lang$elm_architecture_tutorial$Msg$KeyDown = function (a) {
 	return {ctor: 'KeyDown', _0: a};
 };
 
+var _elm_lang$elm_architecture_tutorial$View$addToLeaderboard = function (model) {
+	return _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$AddToLeaderboard) ? A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('add-to-leaderboard leaderboard')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('header row')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text('new high score!')
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('row')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$input,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$value(model.username),
+										_elm_lang$html$Html_Attributes$placeholder('you'),
+										_elm_lang$html$Html_Attributes$maxlength(3),
+										_elm_lang$html$Html_Events$onInput(_elm_lang$elm_architecture_tutorial$Msg$ChangeName)
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[]))
+							])),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('score')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$svg$Svg$text(
+								_elm_lang$core$Basics$toString(model.newHighScore))
+							]))
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('button'),
+						_elm_lang$html$Html_Events$onClick(_elm_lang$elm_architecture_tutorial$Msg$SubmitName)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$svg$Svg$text('OK')
+					]))
+			])) : A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[]));
+};
 var _elm_lang$elm_architecture_tutorial$View$leaderboardRow = function (entry) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9408,7 +9599,7 @@ var _elm_lang$elm_architecture_tutorial$View$leaderboardRow = function (entry) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text(entry.username)
+						_elm_lang$svg$Svg$text(entry.username)
 					])),
 				A2(
 				_elm_lang$html$Html$div,
@@ -9418,31 +9609,39 @@ var _elm_lang$elm_architecture_tutorial$View$leaderboardRow = function (entry) {
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text(
+						_elm_lang$svg$Svg$text(
 						_elm_lang$core$Basics$toString(entry.score))
 					]))
 			]));
 };
 var _elm_lang$elm_architecture_tutorial$View$leaderboard = function (model) {
-	return _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$Leaderboard) ? A2(
+	return (_elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$Leaderboard) || _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$AddToLeaderboard)) ? A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html_Attributes$class('leaderboard')
-			]),
-		A2(
-			_elm_lang$core$List_ops['::'],
-			A2(
+				A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$class('header row')
+						_elm_lang$html$Html_Attributes$class('leaderboard')
 					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('leaderboard')
-					])),
-			A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$View$leaderboardRow, model.leaderboard))) : A2(
+				A2(
+					_elm_lang$core$List_ops['::'],
+					A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('header row')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$svg$Svg$text('leaderboard')
+							])),
+					A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$View$leaderboardRow, model.leaderboard))),
+				_elm_lang$elm_architecture_tutorial$View$addToLeaderboard(model)
+			])) : A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
 			[]),
@@ -9756,17 +9955,6 @@ var _elm_lang$elm_architecture_tutorial$View$game = function (model) {
 			]));
 };
 var _elm_lang$elm_architecture_tutorial$View$view = function (model) {
-	var fontImport = A3(
-		_elm_lang$html$Html$node,
-		'style',
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$type$('text/css')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('@import \'https://fonts.googleapis.com/css?family=VT323')
-			]));
 	var mainStyle = _elm_lang$html$Html_Attributes$style(
 		_elm_lang$core$Native_List.fromArray(
 			[
@@ -9781,7 +9969,6 @@ var _elm_lang$elm_architecture_tutorial$View$view = function (model) {
 			[mainStyle]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				fontImport,
 				_elm_lang$elm_architecture_tutorial$View$game(model),
 				_elm_lang$elm_architecture_tutorial$View$leaderboard(model)
 			]));
@@ -9809,116 +9996,164 @@ var _elm_lang$elm_architecture_tutorial$Update$togglePause = function (model) {
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
 };
+var _elm_lang$elm_architecture_tutorial$Update$saveScore = _elm_lang$core$Native_Platform.outgoingPort(
+	'saveScore',
+	function (v) {
+		return [v._0, v._1];
+	});
 var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'Tick':
-				return _elm_lang$elm_architecture_tutorial$Model$interate(
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{intervalLengthMs: _p0._0}));
-			case 'GotSavedScore':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{highScore: _p0._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'GotLeaderboard':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							leaderboard: _elm_lang$core$List$reverse(
-								A2(
-									_elm_lang$core$List$sortBy,
-									function (_) {
-										return _.score;
-									},
-									_p0._0))
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'KeyDown':
-				var _p1 = _p0._0;
-				switch (_p1) {
-					case 27:
-						return _elm_lang$elm_architecture_tutorial$Update$togglePause(model);
-					case 32:
-						return _elm_lang$elm_architecture_tutorial$Update$togglePause(model);
-					case 37:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{leftThruster: true}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					case 38:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{mainEngine: true}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					case 39:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{rightThruster: true}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					case 76:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{
-									view: _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$Leaderboard) ? _elm_lang$elm_architecture_tutorial$Model$Game : _elm_lang$elm_architecture_tutorial$Model$Leaderboard,
-									state: _elm_lang$elm_architecture_tutorial$Model$Paused
-								}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					default:
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			default:
-				var _p2 = _p0._0;
-				switch (_p2) {
-					case 37:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{leftThruster: false}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					case 38:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{mainEngine: false}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					case 39:
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{rightThruster: false}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					case 82:
-						return _elm_lang$elm_architecture_tutorial$Update$init;
-					default:
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
+		update:
+		while (true) {
+			var _p0 = msg;
+			switch (_p0.ctor) {
+				case 'Tick':
+					return _elm_lang$elm_architecture_tutorial$Model$interate(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{intervalLengthMs: _p0._0}));
+				case 'GotSavedScore':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{highScore: _p0._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				case 'GotLeaderboard':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								leaderboard: _elm_lang$core$List$reverse(
+									A2(
+										_elm_lang$core$List$sortBy,
+										function (_) {
+											return _.score;
+										},
+										_p0._0))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				case 'ChangeName':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								username: _elm_lang$core$String$toUpper(
+									A2(
+										_elm_lang$core$String$filter,
+										function ($char) {
+											return _elm_lang$core$Native_Utils.cmp(
+												_elm_lang$core$Char$toCode($char),
+												127) < 0;
+										},
+										_p0._0))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				case 'SubmitName':
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{view: _elm_lang$elm_architecture_tutorial$Model$Game}),
+						_1: _elm_lang$elm_architecture_tutorial$Update$saveScore(
+							{ctor: '_Tuple2', _0: model.username, _1: model.newHighScore})
+					};
+				case 'KeyDown':
+					var _p4 = _p0._0;
+					var _p1 = model.view;
+					if (_p1.ctor === 'AddToLeaderboard') {
+						var _p2 = _p4;
+						if (_p2 === 13) {
+							var _v3 = _elm_lang$elm_architecture_tutorial$Msg$SubmitName,
+								_v4 = model;
+							msg = _v3;
+							model = _v4;
+							continue update;
+						} else {
+							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+						}
+					} else {
+						var _p3 = _p4;
+						switch (_p3) {
+							case 27:
+								return _elm_lang$elm_architecture_tutorial$Update$togglePause(model);
+							case 32:
+								return _elm_lang$elm_architecture_tutorial$Update$togglePause(model);
+							case 37:
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{leftThruster: true}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							case 38:
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{mainEngine: true}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							case 39:
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{rightThruster: true}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							case 76:
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{
+											view: _elm_lang$core$Native_Utils.eq(model.view, _elm_lang$elm_architecture_tutorial$Model$Leaderboard) ? _elm_lang$elm_architecture_tutorial$Model$Game : _elm_lang$elm_architecture_tutorial$Model$Leaderboard,
+											state: _elm_lang$elm_architecture_tutorial$Model$Paused
+										}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							default:
+								return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+						}
+					}
+				default:
+					var _p5 = _p0._0;
+					switch (_p5) {
+						case 37:
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{leftThruster: false}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						case 38:
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{mainEngine: false}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						case 39:
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{rightThruster: false}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						default:
+							return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					}
+			}
 		}
 	});
 

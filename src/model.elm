@@ -1,5 +1,6 @@
-port module Model exposing (Model, Leaderboard, LeaderboardEntry, State(..), Goal(..), View(..), interate, initialModel)
+module Model exposing (Model, Leaderboard, LeaderboardEntry, State(..), Goal(..), View(..), interate, initialModel)
 
+import List exposing (head, reverse)
 import Utils exposing (floatModulo)
 import Config exposing (config)
 
@@ -7,6 +8,7 @@ import Config exposing (config)
 type View
     = Game
     | Leaderboard
+    | AddToLeaderboard
 
 
 type State
@@ -36,6 +38,7 @@ type alias Model =
     , view : View
     , goal : Goal
     , score : Int
+    , newHighScore : Int
     , mainEngine : Bool
     , rightThruster : Bool
     , leftThruster : Bool
@@ -57,10 +60,8 @@ type alias Model =
     , highScore : Int
     , intervalLengthMs : Float
     , leaderboard : Leaderboard
+    , username : String
     }
-
-
-port saveScore : Int -> Cmd msg
 
 
 initialModel : Model
@@ -69,6 +70,7 @@ initialModel =
     , view = Game
     , goal = Coin
     , score = 0
+    , newHighScore = 0
     , mainEngine = False
     , rightThruster = False
     , leftThruster = False
@@ -90,6 +92,7 @@ initialModel =
         , show = False
         }
     , leaderboard = []
+    , username = ""
     }
 
 
@@ -106,7 +109,7 @@ state model =
 
         _ ->
             if model.state == Crashed then
-                { model | state = Paused }
+                { model | state = Paused, score = 0 }
             else if model.y > (config.vehicle.y / 2 + config.base.y) then
                 { model | state = Flying }
             else if model.x < 45 || model.x > 50 + config.pad.x then
@@ -235,7 +238,8 @@ vehicle model =
                         , y = y1
                         , show = True
                         }
-                        -- preserve
+                        -- preserve and persist
+                    , username = model.username
                     , state = model.state
                     , highScore = model.highScore
                     , score = model.score
@@ -260,10 +264,28 @@ vehicle model =
 
 highScore : Model -> ( Model, Cmd a )
 highScore model =
-    if (model.state == Crashed) then
-        if (model.score > model.highScore) then
-            ( { model | highScore = model.score, score = 0, state = Paused, view = Leaderboard }, saveScore model.score )
+    let
+        highScore =
+            max model.score model.highScore
+
+        updatedModel =
+            { model | highScore = highScore }
+    in
+        if (model.state == Crashed) then
+            if (model.score > leaderboardThreshold model) then
+                ( { updatedModel | view = AddToLeaderboard, newHighScore = model.score }, Cmd.none )
+            else
+                ( updatedModel, Cmd.none )
         else
-            ( { model | score = 0 }, Cmd.none )
-    else
-        ( model, Cmd.none )
+            ( model, Cmd.none )
+
+
+leaderboardThreshold : Model -> Int
+leaderboardThreshold model =
+    let
+        last =
+            Maybe.withDefault
+                { score = 0, username = "" }
+                (model.leaderboard |> reverse |> head)
+    in
+        last.score

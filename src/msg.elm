@@ -10,3 +10,5 @@ type Msg
     | Tick Float
     | GotSavedScore Int
     | GotLeaderboard Leaderboard
+    | ChangeName String
+    | SubmitName
