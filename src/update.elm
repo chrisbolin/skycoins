@@ -38,7 +38,7 @@ update msg model =
 
         SubmitName ->
             -- filter the characters allowed
-            ( { model | view = Game }, saveScore ( model.username, model.newHighScore ) )
+            ( { model | view = Leaderboard }, saveScore ( model.username, model.newHighScore ) )
 
         KeyDown code ->
             case model.view of

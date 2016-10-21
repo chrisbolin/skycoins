@@ -10122,7 +10122,7 @@ var _elm_lang$elm_architecture_tutorial$Update$update = F2(
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{view: _elm_lang$elm_architecture_tutorial$Model$Game}),
+							{view: _elm_lang$elm_architecture_tutorial$Model$Leaderboard}),
 						_1: _elm_lang$elm_architecture_tutorial$Update$saveScore(
 							{ctor: '_Tuple2', _0: model.username, _1: model.newHighScore})
 					};
