@@ -232,7 +232,7 @@ title =
     g [ fontSize "7", fill constants.red ]
         [ text' [ y "50", fontSize "59" ] [ text "SKYCOINS" ]
         , text' [ y "62", x "2" ]
-            [ text """"A really shitty game." - early fan"""
+            [ text """"I hate this." - an early fan"""
             ]
         , text' [ y "70", x "2.9" ]
             [ text "get coins. land safely. repeat."

@@ -9901,7 +9901,7 @@ var _elm_lang$elm_architecture_tutorial$View$title = A2(
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$svg$Svg$text('\"A really shitty game.\" - early fan')
+					_elm_lang$svg$Svg$text('\"I hate this.\" - an early fan')
 				])),
 			A2(
 			_elm_lang$svg$Svg$text$,
