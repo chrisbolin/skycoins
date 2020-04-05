@@ -6,7 +6,9 @@
   "dependencies": {
     "elm-live": "^2.5.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "yargs": "^15.3.1"
+  },
   "scripts": {
     "test": "echo \"Everything is OK in your life.\"",
     "build": "elm-make src/main.elm --output=dist/elm.js",
